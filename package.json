@@ -3,6 +3,15 @@
   "description": "Discord.API is a type-safe, memory-optimized TypeScript library for interacting with the Discord API",
   "license": "MIT",
   "version": "0.0.1",
+  "author": {
+    "name": "defaultkavy",
+    "email": "defaultkavy@gmail.com",
+    "url": "https://github.com/defaultkavy"
+  },
+  "bugs": {
+    "url": "https://github.com/defaultkavy/discord.ap/issues"
+  },
+  "homepage": "https://github.com/defaultkavy/discord.ap",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
