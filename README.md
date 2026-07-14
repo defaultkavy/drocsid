@@ -1,14 +1,14 @@
-# Discord.API
-Discord.API 是一个专注在简化与 Discord API 交互，优化内存占用的第三方工具库。
+# Discord-API.js
+Discord-API.js 是一个专注在简化与 Discord API 交互，优化内存占用的第三方工具库。
 
 ## Install
 ```bash
-bun add discord.api
+bun add discord-api.js
 ```
 
 ## Usage
 ```ts
-import { Discord } from "discord.api"
+import { Discord } from "discord-api.js"
 
 const client = new Discord.Client({
     client_token: CLIENT_TOKEN,
