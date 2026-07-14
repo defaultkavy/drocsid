@@ -2,6 +2,7 @@
   "name": "discord.api",
   "description": "Discord.API is a type-safe, memory-optimized TypeScript library for interacting with the Discord API",
   "license": "MIT",
+  "version": "0.0.1",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
