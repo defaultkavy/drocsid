@@ -1,0 +1,156 @@
+import { GatewayDispatchEvents, GatewayDispatchPayload, GatewayIntentBits, GatewayReceivePayload, GatewaySendPayload } from "discord-api-types/gateway";
+import { Logger } from "../lib/logger";
+import { Discord } from "./Discord";
+
+const logger = new Logger({ prefix: ['Discord Gateway'], print: false })
+
+export class Gateway {
+    ws: WebSocket | null = null;
+    seq: number | null = null;
+    session_id: string | null = null;
+    intents: number[];
+    private token: string;
+    private resume_gateway_url: string | null = null;
+    private heartbeat_timer: NodeJS.Timeout | null = null;
+    eventMap = new Map<string, Set<(data: any) => void>>();
+    client: Discord.Client;
+    constructor(client: Discord.Client, token: string, intents: number[]) {
+        this.token = token;
+        this.intents = intents;
+        this.client = client;
+    }
+
+    connect() {
+        logger.debug('Connecting...')
+        this.ws = new WebSocket(`wss://gateway.discord.gg/?v=10&encoding=json`);
+        this.listen();
+    }
+
+    startHeartbeat(interval: number) {
+        this.heartbeat_timer = setInterval(() => this.heartbeat(), interval);
+    }
+
+    identify() {
+        logger.debug('Identify')
+        this.send({
+            op: 2,
+            d: {
+                token: this.token,
+                intents: this.intents.reduce((p, v) => p + v, 0),
+                properties: {
+                    os: 'linux',
+                    browser: 'kiria',
+                    device: 'kiria'
+                }
+            }
+        })
+    }
+
+    heartbeat() {
+        logger.debug(`Heartbeat`)
+        this.send({
+            op: 1,
+            d: this.seq
+        })
+    }
+
+    resume() {
+        logger.debug('Resume')
+        this.send({
+            op: 6,
+            d: {
+                token: this.token,
+                session_id: this.session_id,
+                seq: this.seq
+            }
+        })
+    }
+
+    reconnect() {
+        if (!this.resume_gateway_url) throw logger.fatal('reconnect failed (resume_gateway_url is null)');
+        logger.debug('Reconnecting...')
+        this.ws = new WebSocket(this.resume_gateway_url);
+        this.listen();
+    }
+
+    disconnect() {
+        this.ws?.close(1000)
+        this.heartbeat_timer?.close();
+        this.ws = null;
+    }
+
+    send(payload: any) {
+        this.ws?.send(JSON.stringify(payload))
+    }
+
+    on<K extends Gateway.Payload.Dispatch['t']>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, {t: K}>['d']) => void) {
+        let listenerList = this.eventMap.get(type) ?? new Set();
+        listenerList.add(listener as any);
+        this.eventMap.set(type, listenerList);
+        return () => this.off(type, listener as any);
+    }
+
+    off<K extends Gateway.Payload.Dispatch['t']>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, {t: K}>['d']) => void) {
+        this.eventMap.get(type)?.delete(listener as any);
+    }
+
+    private listen() {
+        this.ws?.addEventListener('open', e => {
+            logger.debug('Connected')
+        })
+        this.ws?.addEventListener('message', e => {
+            const res = JSON.parse(e.data) as Gateway.Messages;
+            switch (res.op) {
+                // Handshake Success
+                case 10: {
+                    logger.debug('Hello');
+                    this.seq = res.s;
+                    this.startHeartbeat(res.d.heartbeat_interval);
+                    this.identify();
+                    break;
+                }
+                case 11: {
+                    logger.debug('Heartbeat ACK');
+                    break;
+                }
+                case 0: {
+                    this.seq = res.s;
+                    this.eventHandle(res);
+                }
+            }
+
+        })
+        this.ws?.addEventListener('error', e => {
+            logger.error('WebSocket Error');
+        })
+        this.ws?.addEventListener('close', e => {
+            logger.error('WebSocket Close:', e.reason, e);
+            this.disconnect();
+            this.reconnect();
+        })
+    }
+
+    private eventHandle(e: Gateway.Payload.Dispatch) {
+        switch(e.t) {
+            case Gateway.Events.Ready: {
+                this.session_id = e.d.session_id;
+                this.resume_gateway_url = e.d.resume_gateway_url;
+                break;
+            }
+        }
+        logger.debug(`${e.t}`);
+        this.eventMap.get(e.t)?.forEach(fn => fn(e.d))
+    }
+}
+
+export namespace Gateway {
+    export import Events = GatewayDispatchEvents;
+    export type Messages = GatewayDispatchPayload | GatewayReceivePayload;
+    export namespace Payload {
+        export type Dispatch = GatewayDispatchPayload;
+        export type Receive = GatewayReceivePayload;
+        export type Send = GatewaySendPayload;
+    }
+
+    export import Intents = GatewayIntentBits;
+}

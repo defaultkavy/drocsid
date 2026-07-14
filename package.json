@@ -1,0 +1,21 @@
+{
+  "name": "discord.api",
+  "description": "Discord.API is a type-safe, memory-optimized TypeScript library for interacting with the Discord API",
+  "license": "MIT",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  },
+  "dependencies": {
+    "discord-api-types": "^0.38.49"
+  },
+  "files": [
+    "tsconfig.json",
+    "index.ts",
+    "src"
+  ]
+}
