@@ -1,5 +1,5 @@
-import { RESTGetAPIUserResult } from "discord-api-types/rest";
-import type { Discord } from "../Discord";
+import type { RESTGetAPIUserResult } from "discord-api-types/rest";
+import type { Discord } from "../../..";
 
 export class UserAPI {
     user_id: string;
@@ -18,7 +18,7 @@ export class UserAPI {
      * @returns User object {@link Discord.User}
      */
     get() {
-        return this.client.api.get<Discord.User.API.Get.Result>(`${this.path}`)
+        return this.client.api.get<UserAPI.Get.Result>(`${this.path}`)
     }
 }
 

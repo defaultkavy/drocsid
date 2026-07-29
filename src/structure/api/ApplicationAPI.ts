@@ -1,4 +1,4 @@
-import {
+import type {
     RESTGetAPIApplicationCommandsQuery,
     RESTGetAPIApplicationCommandsResult,
     RESTGetAPIApplicationRoleConnectionMetadataResult,
@@ -20,9 +20,9 @@ import {
     RESTPutAPIApplicationRoleConnectionMetadataJSONBody,
     RESTPutAPIApplicationRoleConnectionMetadataResult,
 } from "discord-api-types/rest";
-import type { Discord } from "../Discord";
 import { CommandAPI } from "./CommandAPI";
 import { GuildCommandAPI } from "./GuildCommandAPI";
+import type { Discord } from "../../..";
 
 export class ApplicationAPI {
     client: Discord.Client;

@@ -1,4 +1,4 @@
-import {
+import type {
     RESTDeleteAPIGuildBanResult,
     RESTGetAPIGuildBanResult,
     RESTGetAPIGuildBansQuery,
@@ -8,7 +8,7 @@ import {
     RESTPutAPIGuildBanJSONBody,
     RESTPutAPIGuildBanResult,
 } from "discord-api-types/rest";
-import type { Discord } from "../Discord";
+import type { Discord } from "../../..";
 
 export class GuildBanAPI {
     client: Discord.Client;

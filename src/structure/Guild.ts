@@ -1,9 +1,9 @@
-import { APIBaseGuild, APIBaseGuildMember, APIBaseVoiceGuildMember, APIGuild, APIGuildMember, APIGuildMemberAvatar, APIGuildMemberJoined, APIGuildMemberUser, APIGuildPreview, APIPartialGuild, APIUnavailableGuild, RESTGetAPIGuildChannelsResult, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIGuildChannelPositionsResult, RESTPostAPIGuildChannelJSONBody, RESTPostAPIGuildChannelResult } from "discord-api-types/v10";
+import type { APIBaseGuild, APIBaseGuildMember, APIBaseVoiceGuildMember, APIGuild, APIGuildMember, APIGuildMemberAvatar, APIGuildMemberJoined, APIGuildMemberUser, APIGuildPreview, APIPartialGuild, APIUnavailableGuild } from "discord-api-types/payloads";
+import type { RESTGetAPIGuildChannelsResult, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPatchAPIGuildChannelPositionsResult, RESTPostAPIGuildChannelJSONBody, RESTPostAPIGuildChannelResult } from "discord-api-types/rest";
 import { GuildAPI } from "./api/GuildAPI";
 import { GuildBanAPI } from "./api/GuildBanAPI";
 import { GuildMemberAPI } from "./api/GuildMemberAPI";
 import { GuildRoleAPI } from "./api/GuildRoleAPI";
-
 
 export namespace Guild {
     export import API = GuildAPI;

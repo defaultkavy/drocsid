@@ -1,4 +1,4 @@
-import {
+import type {
     RESTDeleteAPIChannelResult,
     RESTGetAPIChannelMessagesPinsQuery,
     RESTGetAPIChannelMessagesPinsResult,
@@ -15,7 +15,7 @@ import {
     RESTPostAPIChannelThreadsResult,
     RESTPostAPIChannelTypingResult,
 } from "discord-api-types/rest";
-import { Discord } from "../Discord";
+import { Discord } from "../../..";
 import { MessageAPI } from "./MessageAPI";
 
 export class ChannelAPI {

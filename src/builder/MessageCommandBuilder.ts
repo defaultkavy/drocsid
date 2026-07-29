@@ -1,7 +1,8 @@
-import { Locale, RESTPostAPIContextMenuApplicationCommandsJSONBody } from "discord-api-types/rest";
-import { CommandBuilder, CommandEvent } from "./CommandBuilder";
-import { APIMessage, APIMessageApplicationCommandInteraction, ApplicationCommandType, ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits } from "discord-api-types/payloads";
-import { Discord } from "../structure/Discord";
+import { type APIMessage, type APIMessageApplicationCommandInteraction, ApplicationCommandType } from "discord-api-types/payloads";
+import type { RESTPostAPIContextMenuApplicationCommandsJSONBody } from "discord-api-types/rest";
+import { CommandBaseEvent } from "../event/CommandBaseEvent";
+import { CommandBuilder } from "./CommandBuilder";
+import type { Discord } from "../..";
 
 export class MessageCommandBuilder extends CommandBuilder {
     listeners = new Set<(i: MessageCommandEvent) => void>();
@@ -16,45 +17,13 @@ export class MessageCommandBuilder extends CommandBuilder {
         }
     }
 
-    contexts(contexts: InteractionContextType[]) {
-        this.config.contexts = contexts;
-        return this;
-    }
-
-    integrationTypes(types: ApplicationIntegrationType[]) {
-        this.config.integration_types = types
-        return this;
-    }
-
-    setNameLocalization(locale: Locale, name: string) {
-        this.config.name_localizations![locale] = name;
-        return this;
-    }
-
-    setDescriptionLocalization(locale: Locale, description: string) {
-        this.config.description_localizations![locale] = description;
-        return this;
-    }
-
-    nsfw(nsfw: boolean) {
-        this.config.nsfw = nsfw;
-        return this;
-    }
-
-    defaultMemberPermissions(permissions: PermissionFlagsBits[]) {
-        this.config.default_member_permissions = permissions.reduce((prev, value) => prev + PermissionFlagsBits[value], BigInt(0)).toString();
-        return this;
-    }
-
     oncall(handle: (i: MessageCommandEvent) => void) {
         this.listeners.add(handle);
         return this;
     }
 }
 
-export type PermissionFlagsBits = keyof typeof PermissionFlagsBits;
-
-export class MessageCommandEvent extends CommandEvent {
+export class MessageCommandEvent extends CommandBaseEvent {
     declare interaction: APIMessageApplicationCommandInteraction;
     message: APIMessage;
     constructor(client: Discord.Client, interaction: APIMessageApplicationCommandInteraction) {

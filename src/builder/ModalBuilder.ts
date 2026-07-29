@@ -1,7 +1,8 @@
-import { APIApplicationCommandInteraction, APIChannelSelectComponent, APICheckboxComponent, APICheckboxGroupComponent, APIComponentInLabel, APIFileUploadComponent, APILabelComponent, APIMentionableSelectComponent, APIModalInteractionResponse, APIRadioGroupComponent, APIRoleSelectComponent, APITextInputComponent, APIUserSelectComponent, ComponentType, InteractionResponseType, TextInputStyle } from "discord-api-types/payloads";
-import { Discord } from "../structure/Discord";
+import { type APIChannelSelectComponent, type APICheckboxComponent, type APICheckboxGroupComponent, type APIComponentInLabel, type APIFileUploadComponent, type APIInteraction, type APILabelComponent, type APIMentionableSelectComponent, type APIModalInteractionResponse, type APIRadioGroupComponent, type APIRoleSelectComponent, type APITextInputComponent, type APIUserSelectComponent, ComponentType, InteractionResponseType, TextInputStyle } from "discord-api-types/payloads";
+import { customIdMaxLengthCheck } from "../lib/utils";
+import type { Discord } from "../..";
 
-export class ModalBuilder<Components extends Record<string, APILabelComponent> = Record<string, APILabelComponent>> {
+export class ModalBuilder<Components extends Record<string, any> = {}> {
     config: APIModalInteractionResponse;
     declare components: Components;
     matcher: RegExp | string;
@@ -18,7 +19,7 @@ export class ModalBuilder<Components extends Record<string, APILabelComponent> =
         this.matcher = custom_id;
     }
 
-    async send(client: Discord.Client, interaction: APIApplicationCommandInteraction, custom_id?: string) {
+    async send(client: Discord.Client, interaction: APIInteraction, custom_id?: string) {
         const config = structuredClone(this.config);
         if (custom_id) config.data.custom_id = custom_id;
         return client.interaction(interaction.id, interaction.token).callback(config);
@@ -38,144 +39,119 @@ export class ModalBuilder<Components extends Record<string, APILabelComponent> =
         return this;
     }
 
-    shortText<K extends string>(label: string, custom_id: K, options?: Omit<APITextInputComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    shortText<K extends string, O extends ComponentOptions<APITextInputComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.TextInput,
             style: TextInputStyle.Short
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APITextInputComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string>>;
     }
 
-    paragraghText<K extends string>(label: string, custom_id: K, options?: Omit<APITextInputComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    paragraghText<K extends string, O extends ComponentOptions<APITextInputComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.TextInput,
             style: TextInputStyle.Paragraph
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APITextInputComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string>>;
     }
 
-    userSelect<K extends string>(label: string, custom_id: K, options?: Omit<APIUserSelectComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    userSelect<K extends string, O extends ComponentOptions<APIUserSelectComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.UserSelect,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APIUserSelectComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string[]>>;
     }
 
-    roleSelect<K extends string>(label: string, custom_id: K, options?: Omit<APIRoleSelectComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    roleSelect<K extends string, O extends ComponentOptions<APIRoleSelectComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.RoleSelect,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APIRoleSelectComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string[]>>;
     }
 
-    mentionableSelect<K extends string>(label: string, custom_id: K, options?: Omit<APIMentionableSelectComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    mentionableSelect<K extends string, O extends ComponentOptions<APIMentionableSelectComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.MentionableSelect,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APIMentionableSelectComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string[]>>;
     }
 
-    channelSelect<K extends string>(label: string, custom_id: K, options?: Omit<APIChannelSelectComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    channelSelect<K extends string, O extends ComponentOptions<APIChannelSelectComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.ChannelSelect,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APIChannelSelectComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string[]>>;
     }
 
-    fileUpload<K extends string>(label: string, custom_id: K, options?: Omit<APIFileUploadComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
-
+    fileUpload<K extends string, O extends ComponentOptions<APIFileUploadComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.FileUpload,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APIFileUploadComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string[]>>;
     }
 
-    radioGroup<K extends string>(label: string, custom_id: K, options: Omit<APIRadioGroupComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    radioGroup<K extends string, O extends ComponentOptions<APIRadioGroupComponent>>(label: string, custom_id: K, options: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.RadioGroup,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APIRadioGroupComponent>>>;
+        return this as ModalBuilder<Components & Record<K, O['required'] extends false ? null | string : string>>;
     }
 
-    checkboxGroup<K extends string>(label: string, custom_id: K, options: Omit<APICheckboxGroupComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    checkboxGroup<K extends string, O extends ComponentOptions<APICheckboxGroupComponent>>(label: string, custom_id: K, options: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.CheckboxGroup,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APICheckboxGroupComponent>>>;
+        return this as ModalBuilder<Components & Record<K, string[]>>;
     }
 
-    checkbox<K extends string>(label: string, custom_id: K, options?: Omit<APICheckboxComponent, 'type' | 'style' | 'custom_id'> & Pick<APILabelComponent, 'description' | 'id'>) {
+    checkbox<K extends string, O extends ComponentOptions<APICheckboxComponent>>(label: string, custom_id: K, options?: O) {
+        customIdMaxLengthCheck(custom_id);
         this.config.data.components.push(this.label(label, {
             ...options,
             custom_id,
             type: ComponentType.Checkbox,
         }))
-        return this as ModalBuilder<Components & Record<K, ComponentInLabel<APICheckboxComponent>>>;
+        return this as ModalBuilder<Components & Record<K, boolean>>;
     }
 
-    modify(handle: (data: ModalModifyData<Components>) => void) {
-        const data: ModalModifyData<Components> = {
-            title: this.config.data.title,
-            custom_id: this.config.data.custom_id,
-            components: Object.fromEntries(this.config.data.components
-                .filter(component => component.type === ComponentType.Label)
-                .map(label => [
-                    label.component.custom_id, 
-                    {
-                        ...structuredClone(label),
-                        visible: true
-                    }
-                ])) as any
-        };
-        handle(data);
-        const modal = new ModalBuilder(data.title, data.custom_id);
-        modal.config = structuredClone(this.config);
-        const labels = modal.config.data.components.filter(component => component.type === ComponentType.Label);
-        Object.entries(data.components).forEach(([custom_id, modified]) => {
-            const label = labels.find(component => component.component.custom_id === custom_id);
-            if (!label) return;
-            label.component.custom_id = modified.custom_id;
-            label.label = modified.label;
-            if (modified.visible === false) modal.config.data.components.splice(modal.config.data.components.indexOf(label), 1);
-        })
-        return modal;
-    }
-
-    private label(label: string, data: APIComponentInLabel & Pick<APILabelComponent, 'description' | 'id'>) {
+    private label(label: string, { description, id, ...data }: APIComponentInLabel & Pick<APILabelComponent, 'description' | 'id'>) {
         return {
             label, 
-            description: data.description, 
-            id: data.id,
+            description, 
+            id,
             type: ComponentType.Label,
             component: data
         } satisfies APILabelComponent
     }
 }
 
-type ComponentInLabel<C extends APIComponentInLabel> = APILabelComponent & { component: C }
+type LabelOptions = Pick<APILabelComponent, 'description' | 'id'>;
 
-export type ModalModifyData<Components extends Record<string, APILabelComponent>> = {
-    title: string;
-    custom_id: string;
-    components: {
-        [key in keyof Components]: Components[key] & { visible: boolean }
-    }
-}
+type ComponentOptions<T extends APIComponentInLabel> = Omit<T, 'type' | 'style' | 'custom_id'> & LabelOptions;

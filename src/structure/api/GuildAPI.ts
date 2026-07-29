@@ -1,5 +1,5 @@
-import { RESTGetAPIGuildMessagesSearchQuery, RESTGetAPIGuildMessagesSearchResult, RESTGetAPIGuildPreviewResult, RESTGetAPIGuildQuery, RESTGetAPIGuildResult, RESTPatchAPIGuildJSONBody, RESTPatchAPIGuildResult } from "discord-api-types/rest";
-import { Discord } from "../Discord";
+import type { RESTGetAPIGuildMessagesSearchQuery, RESTGetAPIGuildMessagesSearchResult, RESTGetAPIGuildPreviewResult, RESTGetAPIGuildQuery, RESTGetAPIGuildResult, RESTPatchAPIGuildJSONBody, RESTPatchAPIGuildResult } from "discord-api-types/rest";
+import { Discord } from "../../..";
 import { GuildBanAPI } from "./GuildBanAPI";
 import { GuildMemberAPI } from "./GuildMemberAPI";
 

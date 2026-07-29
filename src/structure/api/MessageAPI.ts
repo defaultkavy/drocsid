@@ -1,4 +1,4 @@
-import {
+import type {
     RESTDeleteAPIChannelAllMessageReactionsResult,
     RESTDeleteAPIChannelMessageOwnReactionResult,
     RESTDeleteAPIChannelMessageReactionResult,
@@ -16,7 +16,7 @@ import {
     RESTPutAPIChannelMessageReactionResult,
     RESTPutAPIChannelMessagesPinResult,
 } from "discord-api-types/rest";
-import { Discord } from "../Discord";
+import { Discord } from "../../..";
 import { MessageReactionAPI } from "./MessageReactionAPI";
 
 export class MessageAPI {

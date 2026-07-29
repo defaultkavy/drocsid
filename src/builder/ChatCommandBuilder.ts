@@ -1,31 +1,83 @@
-import { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord-api-types/rest";
-import { APIApplicationCommandIntegerOption, APIApplicationCommandInteractionDataBasicOption, APIApplicationCommandInteractionDataOption, APIApplicationCommandStringOption, APIApplicationCommandSubcommandOption, APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
-import { APIApplicationCommandSubcommandGroupOption } from "discord-api-types/v9";
-import { CommandBuilder, CommandEvent } from "./CommandBuilder";
-import { Discord } from "../structure/Discord";
+import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord-api-types/rest";
+import { type APIApplicationCommandSubcommandGroupOption, type APIApplicationCommandAttachmentOption, type APIApplicationCommandBooleanOption, type APIApplicationCommandChannelOption, type APIApplicationCommandIntegerOption, type APIApplicationCommandMentionableOption, type APIApplicationCommandNumberOption, type APIApplicationCommandOption, type APIApplicationCommandRoleOption, type APIApplicationCommandStringOption, type APIApplicationCommandSubcommandOption, type APIApplicationCommandUserOption, ApplicationCommandOptionType, type APIApplicationCommandInteraction, type APIApplicationCommandInteractionDataIntegerOption, type APIApplicationCommandBasicOption, type APIApplicationRoleConnection, type APIApplicationCommandInteractionDataBasicOption } from "discord-api-types/payloads";
+import { CommandBuilder } from "./CommandBuilder";
+import { ChatCommandEvent } from "../event/ChatCommandEvent";
+import type { AutocompleteEvent } from "../event/AutocompleteEvent";
 
-export abstract class ChatCommandBuilderBase<Options extends Record<string, unknown> = {}> extends CommandBuilder {
+export abstract class ChatCommandBuilderBase<Options extends Record<string, ChatCommandBuilderOption> = {}> extends CommandBuilder {
     declare options: Options;
     abstract override config: RESTPostAPIChatInputApplicationCommandsJSONBody | APIApplicationCommandSubcommandOption;
     listeners = new Set<(i: ChatCommandEvent<Options>) => void>();
+    autocompleteListeners = new Set<(e: AutocompleteEvent<Options>) => void>();
 
-    stringOption<const C extends Omit<APIApplicationCommandStringOption, 'type'>>(config: C) {
-        this.config.options?.push({...config, type: ApplicationCommandOptionType.String} as APIApplicationCommandStringOption);
-        return this as this & ChatCommandBuilderBase<Options & OptionRequiredPossible<C, string>>;
+    use<T extends this>(handle: (builder: this) => T) {
+        handle(this);
+        return this as T;
     }
 
-    integerOption<const C extends Omit<APIApplicationCommandStringOption, 'type'>>(config: C) {
-        this.config.options?.push({...config, type: ApplicationCommandOptionType.Integer} as APIApplicationCommandIntegerOption);
-        return this as this & ChatCommandBuilderBase<Options & OptionRequiredPossible<C, number>>;
+    stringOption<N extends string, const C extends Omit<APIApplicationCommandStringOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.String, name, description} as APIApplicationCommandStringOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.String, value: string, required: C['required'], autocomplete: C['autocomplete'] }>>;
     }
 
-    oncall(handle: (i: ChatCommandEvent<this['options']>) => void) {
+    integerOption<N extends string, const C extends Omit<APIApplicationCommandIntegerOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Integer, name, description} as APIApplicationCommandIntegerOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Integer, value: number, required: C['required'], autocomplete: C['autocomplete'] }>>;
+    }
+
+    numberOption<N extends string, const C extends Omit<APIApplicationCommandNumberOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Number, name, description} as APIApplicationCommandNumberOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Number, value: number, required: C['required'], autocomplete: C['autocomplete'] }>>;
+    }
+
+    booleanOption<N extends string, const C extends Omit<APIApplicationCommandBooleanOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Boolean, name, description} as APIApplicationCommandBooleanOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Boolean, value: boolean, required: C['required'] }>>;
+    }
+    
+    attachmentOption<N extends string, const C extends Omit<APIApplicationCommandAttachmentOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Attachment, name, description} as APIApplicationCommandAttachmentOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Attachment, value: string, required: C['required'] }>>;
+    }
+
+    userOption<N extends string, const C extends Omit<APIApplicationCommandUserOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.User, name, description} as APIApplicationCommandUserOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.User, value: string, required: C['required'] }>>;
+    }
+
+    channelOption<N extends string, const C extends Omit<APIApplicationCommandChannelOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Channel, name, description} as APIApplicationCommandChannelOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Channel, value: string, required: C['required'] }>>;
+    }
+
+    roleOption<N extends string, const C extends Omit<APIApplicationCommandRoleOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Role, name, description} as APIApplicationCommandRoleOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Role, value: string, required: C['required'] }>>;
+    }
+
+    mentionableOption<N extends string, const C extends Omit<APIApplicationCommandMentionableOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
+        this.config.options?.push({...config, type: ApplicationCommandOptionType.Mentionable, name, description} as APIApplicationCommandMentionableOption);
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Mentionable, value: string, required: C['required'] }>>;
+    }
+
+    oncall(handle: (e: ChatCommandEvent<this['options']>) => void) {
         this.listeners.add(handle);
+        return this;
+    }
+
+    onautocomplete(handle: (e: AutocompleteEvent<this['options']>) => void) {
+        this.autocompleteListeners.add(handle);
         return this;
     }
 }
 
-type OptionRequiredPossible<C extends Omit<APIApplicationCommandStringOption, 'type'>, T> = C['required'] extends true ? Record<C['name'], T> : Partial<Record<C['name'], T>>;
+export type APIApplicationCommandAutocompleteOptions = APIApplicationCommandStringOption | APIApplicationCommandIntegerOption | APIApplicationCommandNumberOption;
+export type APIApplicationCommandNonAutocompleteOptions = Exclude<APIApplicationCommandBasicOption, APIApplicationCommandAutocompleteOptions>;
+
+export type ChatCommandBuilderOption = ChatCommandBuilderNonAutocompleteOption | ChatCommandBuilderAutocompleteOption;
+export type ChatCommandBuilderBasicOption = APIApplicationCommandInteractionDataBasicOption & { required: boolean }
+export type ChatCommandBuilderNonAutocompleteOption = ChatCommandBuilderBasicOption;
+export type ChatCommandBuilderAutocompleteOption = ChatCommandBuilderBasicOption & { autocomplete: boolean };
 
 export class ChatCommandBuilder extends ChatCommandBuilderBase {
     config: RESTPostAPIChatInputApplicationCommandsJSONBody;
@@ -90,23 +142,5 @@ export class SubcommandGroupBuilder {
         this.subcommands.add(resolve);
         this.config.options?.push(resolve.config);
         return this;
-    }
-}
-
-export class ChatCommandEvent<Options extends Record<string, unknown>> extends CommandEvent {
-    options: Options;
-    constructor(client: Discord.Client, interaction: APIChatInputApplicationCommandInteraction, options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined) {
-        super(client, interaction);
-        this.options = this.resolveOptions(options) as Options;
-    }
-
-    private resolveOptions(options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined): Record<string, unknown> {
-        if (!options) return {};
-        const [first] = options;
-        if (!first) return {};
-        if (first.type === ApplicationCommandOptionType.Subcommand || first.type === ApplicationCommandOptionType.SubcommandGroup) 
-            return this.resolveOptions(first.options);
-        const basicOptions = options as APIApplicationCommandInteractionDataBasicOption<InteractionType.ApplicationCommand>[];
-        return Object.fromEntries(basicOptions.map(option => [option.name, option.value]))
     }
 }

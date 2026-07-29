@@ -1,15 +1,20 @@
 import { ClientUserAPI } from "./api/ClientUserAPI";
 import { GuildAPI } from "./api/GuildAPI";
 import { UserAPI } from "./api/UserAPI";
-import { Discord } from "./Discord";
 import { Gateway } from "./Gateway";
 import { API } from "./api/API";
 import { ChannelAPI } from "./api/ChannelAPI";
 import { ApplicationAPI } from "./api/ApplicationAPI";
-import { GatewayReadyDispatchData } from "discord-api-types/gateway";
+import type { GatewayDispatchEvents, GatewayReadyDispatchData } from "discord-api-types/gateway";
 import { InteractionAPI } from "./api/InteractionAPI";
-import { APICheckboxComponent, APIComponentInLabel, APIModalSubmitInteraction, APIRadioGroupComponent, APITextInputComponent, ComponentType, InteractionType } from "discord-api-types/payloads";
+import { InteractionType, type APIMessageComponentInteraction, type APIMessageComponentInteractionData, type APIModalSubmitInteraction } from "discord-api-types/payloads";
 import { ModalBuilder } from "../builder/ModalBuilder";
+import { ModalComponentEvent } from "../event/ModalComponentEvent";
+import { MessageComponentEvent } from "../event/MessageComponentEvent";
+import { Discord } from "../..";
+import { loggerMap } from "../lib/logger";
+
+const logger = loggerMap.client;
 
 /**
  * Discord client instance. Provide the HTTP API methods and Discord Gateway interface.
@@ -28,16 +33,16 @@ export class Client {
 
     async connect() {
         return new Promise<GatewayReadyDispatchData>(resolve => {
-            this.gateway.on(Discord.Gateway.Events.Ready, resolve)
+            this.gateway.on('Ready', resolve)
             this.gateway.connect();
         })
     }
 
-    on<K extends Gateway.Payload.Dispatch['t']>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: K }>['d']) => void) {
+    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: typeof GatewayDispatchEvents[K] }>['d']) => void) {
         return this.gateway.on(type, listener as any);
     }
 
-    off<K extends Gateway.Payload.Dispatch['t']>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: K }>['d']) => void) {
+    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: typeof GatewayDispatchEvents[K] }>['d']) => void) {
         this.gateway.off(type, listener as any)
     }
 
@@ -69,71 +74,59 @@ export class Client {
         return new ApplicationAPI(this, application_id);
     }
 
-    onmodal<M extends ModalBuilder>(modal: M, handle: (event: ModalEvent<M>) => void): void;
-    onmodal<M extends ModalBuilder>(idMatcher: RegExp | string, handle: (event: ModalEvent<M>) => void): void;
-    onmodal<M extends ModalBuilder>(resolver: RegExp | M, handle: (event: ModalEvent<M>) => void) {
-        return this.on(Discord.Gateway.Events.InteractionCreate, i => {
+    onmodal<K extends string | RegExp, M extends ModalBuilder>(builder: M | ((...args: any[]) => M) | ((...args: any[]) => Promise<M>), custom_id: K, handle: (event: ModalComponentEvent<M, K extends string ? K : ''>) => void) {
+        return this.on('InteractionCreate', i => {
             if (i.type !== InteractionType.ModalSubmit) return;
-            if (resolver instanceof ModalBuilder) {
-                if (resolver.matcher instanceof RegExp && !resolver.matcher.test(i.data.custom_id)) return;
-                else if (resolver.matcher !== i.data.custom_id) return;
+            if (custom_id instanceof RegExp && !custom_id.test(i.data.custom_id)) return;
+
+            const event = new ModalComponentEvent<M>(this, i);
+            if (typeof custom_id === 'string') {
+                if (!this.customIdResolver(custom_id, i, event)) return;
             }
-            else if (!resolver.test(i.data.custom_id)) return;
-            const data = {
-                value: [] as [string, string | boolean | null][],
-                values: [] as [string, (string | boolean | null)[]][],
-                components: {} as Record<string, any>
-            }
-            i.data.components
-                .filter(component => component.type === ComponentType.Label)
-                .forEach(label => {
-                    switch (label.component.type) {
-                        case ComponentType.Checkbox:
-                        case ComponentType.RadioGroup:
-                        case ComponentType.TextInput: {
-                            data.value.push([label.component.custom_id, label.component.value])
-                            break;
-                        }
-                        case ComponentType.FileUpload:
-                        case ComponentType.CheckboxGroup:
-                        case ComponentType.StringSelect:
-                        case ComponentType.RoleSelect:
-                        case ComponentType.UserSelect:
-                        case ComponentType.MentionableSelect:
-                        case ComponentType.ChannelSelect: {
-                            data.values.push([label.component.custom_id, label.component.values]);
-                            break;
-                        }
-                    }
-                })
-            handle({
-                interaction: i,
-                value: new Map(data.value),
-                values: new Map(data.values),
-                components: Object.fromEntries([...data.value, ...data.values])
-            });
+            
+            handle(event);
         })
+    }
+
+    oncomponent<T extends keyof typeof Discord.ComponentType, K extends string | RegExp>(type: T, custom_id: K, handle: (event: MessageComponentEvent<Extract<APIMessageComponentInteractionData, { component_type: typeof Discord.ComponentType[T] }>, K extends string ? K : ''>) => void) {
+        return this.on('InteractionCreate', i => {
+            if (i.type !== InteractionType.MessageComponent) return;
+            if (i.data.component_type !== Discord.ComponentType[type]) return;
+            if (custom_id instanceof RegExp && !custom_id.test(i.data.custom_id)) return;
+
+            const event = new MessageComponentEvent<any, any>(this, i);
+            if (typeof custom_id === 'string') {
+                if (!this.customIdResolver(custom_id, i, event)) return;
+            }
+
+            handle(event);
+        })
+    }
+
+    customIdResolver(custom_id: string, i: APIMessageComponentInteraction | APIModalSubmitInteraction, event: MessageComponentEvent | ModalComponentEvent) {
+        const log = logger.prefix('customIdResolver()')
+        log.debug(`resolving custom_id (${custom_id})`)
+        const resolveParts = custom_id.split('/');
+        const requestParts = i.data.custom_id.split('/');
+        for (let i = 0; i < resolveParts.length; i++) {
+            const resPart = resolveParts[i];
+            if (!resPart) throw log.fatal('resPart is undefined');
+            const reqPart = requestParts[i];
+            if (!reqPart) return false;
+            const matched = resPart.match(/{(.+?)}/);
+            if (matched) {
+                log.debug(`custom_id matched (${matched[1]}: ${reqPart})`)
+                Object.assign(event.params, {[matched[1]!]: reqPart});
+            }
+            else if (reqPart !== resPart) return false;
+        }
+        return true;
     }
 
     get me() {
         return new ClientUserAPI(this);
     }
 }
-
-type ModalEvent<M extends ModalBuilder> = { 
-    interaction: APIModalSubmitInteraction, 
-    value: Map<string, string | boolean | null>, 
-    values: Map<string, (string | boolean | null)[]>,
-    components: {
-        [key in keyof M['components']]: ModalEventComponentValue<M['components'][key]['component']>
-    }
-}
-
-type ModalEventComponentValue<Component extends APIComponentInLabel> = 
-        Component extends APITextInputComponent ? string
-    :   Component extends APIRadioGroupComponent ? (string | null)[]
-    :   Component extends APICheckboxComponent ? boolean
-    :   string[]
 
 export namespace Client {
     export namespace User {
@@ -145,6 +138,6 @@ export namespace Client {
     export interface Config {
         client_id: string;
         client_token: string;
-        intents?: Discord.Gateway.Intents[];
+        intents?: (keyof typeof Discord.GatewayIntentBits)[];
     }
 }

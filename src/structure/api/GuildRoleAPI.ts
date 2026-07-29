@@ -1,5 +1,5 @@
-import { RESTDeleteAPIGuildRoleResult, RESTGetAPIGuildRoleMemberCountsResult, RESTGetAPIGuildRoleResult, RESTGetAPIGuildRolesResult, RESTPatchAPIGuildRoleJSONBody, RESTPatchAPIGuildRolePositionsJSONBody, RESTPatchAPIGuildRolePositionsResult, RESTPatchAPIGuildRoleResult, RESTPostAPIGuildRoleJSONBody, RESTPostAPIGuildRoleResult } from "discord-api-types/rest";
-import type { Discord } from "../Discord";
+import type { RESTDeleteAPIGuildRoleResult, RESTGetAPIGuildRoleMemberCountsResult, RESTGetAPIGuildRoleResult, RESTGetAPIGuildRolesResult, RESTPatchAPIGuildRoleJSONBody, RESTPatchAPIGuildRolePositionsJSONBody, RESTPatchAPIGuildRolePositionsResult, RESTPatchAPIGuildRoleResult, RESTPostAPIGuildRoleJSONBody, RESTPostAPIGuildRoleResult } from "discord-api-types/rest";
+import type { Discord } from "../../..";
 
 export class GuildRoleAPI {
     client; guild_id;

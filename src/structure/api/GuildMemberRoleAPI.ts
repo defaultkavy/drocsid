@@ -1,4 +1,4 @@
-import { Discord } from "../Discord";
+import { Discord } from "../../..";
 
 export class GuildMemberRoleAPI {
     client; guild_id; user_id;

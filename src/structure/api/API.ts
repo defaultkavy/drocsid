@@ -1,3 +1,6 @@
+import { loggerMap } from "../../lib/logger";
+
+const logger = loggerMap.api;
 
 export class API {
     private token: string;
@@ -14,11 +17,12 @@ export class API {
     }
 
     async get<T>(url: string): Promise<T> {
+        logger.debug(`GET`, url)
         return await fetch(`https://discord.com/api${url}`, {
             headers: this.headers
         }).then(async res => {
             const json = await res.json();
-            if (res.status !== 200) throw json;
+            if (!res.ok) throw logger.fatal(`GET`, url, JSON.stringify(json, undefined, 2));
             return json as T;
         });
     }
@@ -40,6 +44,7 @@ export class API {
     }
 
     async fetch<T>(method: string, url: string, data: any, reason?: string): Promise<T> {
+        logger.debug(`${method}`, url)
         return fetch(`https://discord.com/api${url}`, {
             method,
             headers: {
@@ -50,9 +55,7 @@ export class API {
         }).then(async res => {
             const text = await res.text();
             const json = text ? JSON.parse(text) : undefined;
-            if (json && 'code' in json) {
-                throw new Error(json);
-            }
+            if (!res.ok) throw logger.fatal(`${method}`, url, JSON.stringify(json, undefined, 2));
             return json;
         });
     }

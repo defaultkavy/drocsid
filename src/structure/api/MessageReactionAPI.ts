@@ -1,4 +1,4 @@
-import {
+import type {
     RESTDeleteAPIChannelMessageOwnReactionResult,
     RESTDeleteAPIChannelMessageReactionResult,
     RESTDeleteAPIChannelMessageUserReactionResult,
@@ -6,7 +6,7 @@ import {
     RESTGetAPIChannelMessageReactionUsersResult,
     RESTPutAPIChannelMessageReactionResult,
 } from "discord-api-types/rest";
-import { Discord } from "../Discord";
+import { Discord } from "../../..";
 
 export class MessageReactionAPI {
     client: Discord.Client;

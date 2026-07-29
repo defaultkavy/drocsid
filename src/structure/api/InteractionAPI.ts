@@ -1,4 +1,4 @@
-import {
+import type {
     RESTDeleteAPIInteractionFollowupResult,
     RESTDeleteAPIInteractionOriginalResponseResult,
     RESTGetAPIInteractionFollowupResult,
@@ -12,7 +12,7 @@ import {
     RESTPostAPIInteractionFollowupJSONBody,
     RESTPostAPIInteractionFollowupResult
 } from "discord-api-types/rest";
-import type { Discord } from "../Discord";
+import type { Discord } from "../../..";
 
 export class InteractionAPI {
     client: Discord.Client;

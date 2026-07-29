@@ -1,6 +1,7 @@
-import { APIAllowedMentions, APIApplicationCommandInteraction, APIEmbed, APIMessageSharedClientTheme, APIMessageTopLevelComponent, InteractionResponseType, MessageFlags } from "discord-api-types/payloads";
-import { RESTAPIAttachment, RESTAPIMessageReference, RESTAPIPoll, RESTPostAPIChannelMessageJSONBody } from "discord-api-types/rest";
-import { Discord } from "../structure/Discord";
+import { type APIAllowedMentions, type APIEmbed, type APIInteraction, type APIMessageSharedClientTheme, type APIMessageTopLevelComponent, InteractionResponseType, MessageFlags } from "discord-api-types/payloads";
+import type { RESTAPIAttachment, RESTAPIMessageReference, RESTAPIPoll, RESTPostAPIChannelMessageJSONBody } from "discord-api-types/rest";
+import { ComponentsBuilder, type MessageComponentsBuilder } from "./MessageComponentsBuilder";
+import type { Discord } from "../..";
 
 export class MessageBuilder {
     config: RESTPostAPIChannelMessageJSONBody;
@@ -38,8 +39,20 @@ export class MessageBuilder {
         return this;
     }
 
-    components(components: APIMessageTopLevelComponent[]) {
-        this.config.components = components;
+    components(handle: ((builder: MessageComponentsBuilder) => MessageComponentsBuilder)): this
+    components(builder: MessageComponentsBuilder): this
+    components(resolver: APIMessageTopLevelComponent[]): this
+    components(resolver: APIMessageTopLevelComponent[] | MessageComponentsBuilder | ((builder: MessageComponentsBuilder) => MessageComponentsBuilder)) {
+        this.addFlags('IsComponentsV2');
+        if (resolver instanceof Array) this.config.components = resolver;
+        else if (resolver instanceof Function) this.config.components = resolver(new ComponentsBuilder() as unknown as MessageComponentsBuilder).components;
+        else this.config.components = resolver.components;
+        return this;
+    }
+
+    ephemeral(enable: boolean) {
+        if (enable) this.addFlags('Ephemeral');
+        else this.removeFlags('Ephemeral');
         return this;
     }
 
@@ -48,9 +61,17 @@ export class MessageBuilder {
         return this;
     }
 
-    flags(flags: MessageFlags) {
-        this.config.flags = flags;
+    addFlags(...flags: (keyof typeof MessageFlags)[]) {
+        this.config.flags = flags.reduce((prev, v) => prev |+ MessageFlags[v], this.config.flags ?? 0 << 0);
         return this;
+    }
+
+    removeFlags(...flags: (keyof typeof MessageFlags)[]) {
+        this.config.flags = flags.reduce((prev, v) => prev |- MessageFlags[v], this.config.flags ?? 0 << 0)
+    }
+
+    setFlags(...flags: (keyof typeof MessageFlags)[]) {
+        this.config.flags = flags.reduce((prev, v) => prev |- MessageFlags[v], 0 << 0)
     }
 
     nonce(nonce: number | string) {
@@ -77,10 +98,14 @@ export class MessageBuilder {
         return client.channel(channel_id).messages.create(this.config)
     }
 
-    replyInteraction(client: Discord.Client, interaction: APIApplicationCommandInteraction) {
+    replyInteraction(client: Discord.Client, interaction: APIInteraction) {
         return client.interaction(interaction.id, interaction.token).callback({
             type: InteractionResponseType.ChannelMessageWithSource,
             data: this.config
         })
+    }
+
+    editResponse(client: Discord.Client, interaction: APIInteraction) {
+        return client.interaction(interaction.id, interaction.token).originalResponse.edit(this.config)
     }
 }

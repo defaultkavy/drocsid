@@ -1,20 +1,20 @@
-import { GatewayDispatchEvents, GatewayDispatchPayload, GatewayIntentBits, GatewayReceivePayload, GatewaySendPayload } from "discord-api-types/gateway";
-import { Logger } from "../lib/logger";
-import { Discord } from "./Discord";
+import { GatewayDispatchEvents, type GatewayDispatchPayload, GatewayIntentBits, type GatewayReceivePayload, type GatewaySendPayload } from "discord-api-types/gateway";
+import { Discord } from "../..";
+import { loggerMap } from "../lib/logger";
 
-const logger = new Logger({ prefix: ['Discord Gateway'], print: false })
+const logger = loggerMap.gateway;
 
 export class Gateway {
     ws: WebSocket | null = null;
     seq: number | null = null;
     session_id: string | null = null;
-    intents: number[];
+    intents;
     private token: string;
     private resume_gateway_url: string | null = null;
     private heartbeat_timer: NodeJS.Timeout | null = null;
-    eventMap = new Map<string, Set<(data: any) => void>>();
+    eventMap = new Map<GatewayDispatchEvents, Set<(data: any) => void>>();
     client: Discord.Client;
-    constructor(client: Discord.Client, token: string, intents: number[]) {
+    constructor(client: Discord.Client, token: string, intents: (keyof typeof GatewayIntentBits)[]) {
         this.token = token;
         this.intents = intents;
         this.client = client;
@@ -36,7 +36,7 @@ export class Gateway {
             op: 2,
             d: {
                 token: this.token,
-                intents: this.intents.reduce((p, v) => p + v, 0),
+                intents: this.intents.reduce((p, v) => p |+ GatewayIntentBits[v], 0),
                 properties: {
                     os: 'linux',
                     browser: 'kiria',
@@ -83,15 +83,15 @@ export class Gateway {
         this.ws?.send(JSON.stringify(payload))
     }
 
-    on<K extends Gateway.Payload.Dispatch['t']>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, {t: K}>['d']) => void) {
-        let listenerList = this.eventMap.get(type) ?? new Set();
+    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, {t: K}>['d']) => void) {
+        let listenerList = this.eventMap.get(GatewayDispatchEvents[type]) ?? new Set();
         listenerList.add(listener as any);
-        this.eventMap.set(type, listenerList);
+        this.eventMap.set(GatewayDispatchEvents[type], listenerList);
         return () => this.off(type, listener as any);
     }
 
-    off<K extends Gateway.Payload.Dispatch['t']>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, {t: K}>['d']) => void) {
-        this.eventMap.get(type)?.delete(listener as any);
+    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, {t: K}>['d']) => void) {
+        this.eventMap.get(GatewayDispatchEvents[type])?.delete(listener as any);
     }
 
     private listen() {
@@ -138,7 +138,7 @@ export class Gateway {
                 break;
             }
         }
-        logger.debug(`${e.t}`);
+        logger.debug(`Event Dispatch: ${e.t}`);
         this.eventMap.get(e.t)?.forEach(fn => fn(e.d))
     }
 }

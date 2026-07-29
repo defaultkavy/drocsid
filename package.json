@@ -1,17 +1,17 @@
 {
-  "name": "discord-api.js",
-  "description": "Discord-API.js is a type-safe, memory-optimized, TypeScript first library for interacting with the Discord API",
+  "name": "drocsid",
+  "description": "Drocsid is a type-safe, memory-optimized, TypeScript first library for interacting with the Discord API",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": {
     "name": "defaultkavy",
     "email": "defaultkavy@gmail.com",
     "url": "https://github.com/defaultkavy"
   },
   "bugs": {
-    "url": "https://github.com/defaultkavy/discord-api.js/issues"
+    "url": "https://github.com/defaultkavy/drocsid/issues"
   },
-  "homepage": "https://github.com/defaultkavy/discord-api.js",
+  "homepage": "https://github.com/defaultkavy/drocsid",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -21,10 +21,10 @@
     "typescript": "^6"
   },
   "dependencies": {
-    "discord-api-types": "^0.38.49"
+    "discord-api-types": "^0.38.49",
+    "@defaultkavy/logger": "0.0.1"
   },
   "files": [
-    "tsconfig.json",
     "index.ts",
     "src"
   ]

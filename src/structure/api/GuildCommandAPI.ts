@@ -1,4 +1,4 @@
-import { Discord } from "../Discord";
+import { Discord } from "../../..";
 import { CommandAPI } from "./CommandAPI";
 
 export class GuildCommandAPI extends CommandAPI {

@@ -1,6 +1,6 @@
-import { RESTDeleteAPICurrentUserGuildResult, RESTGetAPICurrentUserGuildsQuery, RESTGetAPICurrentUserGuildsResult, RESTPatchAPICurrentUserJSONBody, RESTPatchAPICurrentUserResult } from "discord-api-types/rest";
+import type { RESTDeleteAPICurrentUserGuildResult, RESTGetAPICurrentUserGuildsQuery, RESTGetAPICurrentUserGuildsResult, RESTPatchAPICurrentUserJSONBody, RESTPatchAPICurrentUserResult } from "discord-api-types/rest";
 import { UserAPI } from "./UserAPI";
-import { Discord } from "../Discord";
+import type { Discord } from "../../..";
 
 export class ClientUserAPI extends UserAPI {
     constructor(base: Discord.Client.Base) {

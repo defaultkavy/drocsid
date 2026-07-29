@@ -1,10 +1,16 @@
-import { RESTPutAPIApplicationCommandsJSONBody, RESTPutAPIApplicationGuildCommandsJSONBody } from "discord-api-types/rest";
-import { APIChatInputApplicationCommandInteractionData, ApplicationCommandOptionType, ApplicationCommandType, InteractionType } from "discord-api-types/payloads";
-import { Discord } from "../structure/Discord";
-import { ChatCommandBuilder, ChatCommandEvent, SubcommandBuilder } from "./ChatCommandBuilder";
+import { type APIAutocompleteApplicationCommandInteractionData, type APIChatInputApplicationCommandInteractionData, ApplicationCommandOptionType, ApplicationCommandType, InteractionType } from "discord-api-types/payloads";
+import type { RESTPutAPIApplicationCommandsJSONBody, RESTPutAPIApplicationGuildCommandsJSONBody } from "discord-api-types/rest";
+import { ChatCommandEvent } from "../event/ChatCommandEvent";
+import { UserCommandEvent } from "../event/UserCommandEvent";
+import { ChatCommandBuilder, ChatCommandBuilderBase, SubcommandBuilder } from "./ChatCommandBuilder";
 import { CommandBuilder } from "./CommandBuilder";
 import { MessageCommandBuilder, MessageCommandEvent } from "./MessageCommandBuilder";
-import { UserCommandBuilder, UserCommandEvent } from "./UserCommandBuilder";
+import type { UserCommandBuilder } from "./UserCommandBuilder";
+import { Discord } from "../..";
+import { AutocompleteEvent } from "../event/AutocompleteEvent";
+import { loggerMap } from "../lib/logger";
+
+const logger = loggerMap.builder;
 
 export class CommandsBuilder {
     client;
@@ -30,26 +36,37 @@ export class CommandsBuilder {
     }
 
     listen() {
-        this.client.on(Discord.Gateway.Events.InteractionCreate, i => {
-            if (i.type !== InteractionType.ApplicationCommand) return;
-            const i_cmd = i.data;
-            switch (i_cmd.type) {
-                case ApplicationCommandType.ChatInput: {
-                    const name = this.commandMapKey(i_cmd);
-                    const cmd = this.commands.get(name) as ChatCommandBuilder;
-                    cmd?.listeners.forEach(dispatcher => dispatcher(new ChatCommandEvent(this.client, i as any, i_cmd.options)))
-                    break;
+        const log = logger.prefix('listen()')
+        this.client.on('InteractionCreate', i => {
+            if (i.type === InteractionType.ApplicationCommand) {
+                const i_cmd = i.data;
+                switch (i_cmd.type) {
+                    case ApplicationCommandType.ChatInput: {
+                        const name = this.commandMapKey(i_cmd);
+                        log.debug('chat input command:', name);
+                        const cmd = this.commands.get(name) as ChatCommandBuilderBase;
+                        cmd?.listeners.forEach(dispatcher => dispatcher(new ChatCommandEvent(this.client, i as any, i_cmd.options)))
+                        break;
+                    }
+                    case ApplicationCommandType.Message: {
+                        const cmd = this.commands.get(i.data.name) as MessageCommandBuilder;
+                        log.debug('message command:', i.data.name);
+                        cmd?.listeners.forEach(dispatcher => dispatcher(new MessageCommandEvent(this.client, i as any)))
+                        break;
+                    }
+                    case ApplicationCommandType.User: {
+                        const cmd = this.commands.get(i.data.name) as UserCommandBuilder;
+                        log.debug('user command:', i.data.name);
+                        cmd?.listeners.forEach(dispatcher => dispatcher(new UserCommandEvent(this.client, i as any)))
+                        break;
+                    }
                 }
-                case ApplicationCommandType.Message: {
-                    const cmd = this.commands.get(i.data.name) as MessageCommandBuilder;
-                    cmd?.listeners.forEach(dispatcher => dispatcher(new MessageCommandEvent(this.client, i as any)))
-                    break;
-                }
-                case ApplicationCommandType.User: {
-                    const cmd = this.commands.get(i.data.name) as UserCommandBuilder;
-                    cmd?.listeners.forEach(dispatcher => dispatcher(new UserCommandEvent(this.client, i as any)))
-                    break;
-                }
+            }
+
+            else if (i.type === InteractionType.ApplicationCommandAutocomplete) {
+                const name = this.commandMapKey(i.data);
+                const cmd = this.commands.get(name) as ChatCommandBuilderBase;
+                cmd.autocompleteListeners.forEach(dispatcher => dispatcher(new AutocompleteEvent(this.client, i)))
             }
         })
         return this;
@@ -58,12 +75,14 @@ export class CommandsBuilder {
     async deploy() {
         const guilds = await this.client.me.getGuilds();
         return Promise.all([
-            this.client.application().commands.bulkOverwrite(Array.from(this.globalCommands).map(cmd => cmd.config) as RESTPutAPIApplicationCommandsJSONBody),
-            ...guilds.map(guild => this.client.application().guild(guild.id).commands.bulkOverwrite(Array.from(this.guildCommands).map(cmd => cmd.config) as RESTPutAPIApplicationGuildCommandsJSONBody))
+            this.client.application().commands.bulkOverwrite(
+                Array.from(this.globalCommands).map(cmd => cmd.config) as RESTPutAPIApplicationCommandsJSONBody),
+            ...guilds.map(guild => this.client.application().guild(guild.id).commands.bulkOverwrite(
+                Array.from(this.guildCommands).map(cmd => cmd.config) as RESTPutAPIApplicationGuildCommandsJSONBody))
         ])
     }
 
-    private commandMapKey(i: APIChatInputApplicationCommandInteractionData): string {
+    private commandMapKey(i: APIChatInputApplicationCommandInteractionData | APIAutocompleteApplicationCommandInteractionData): string {
         const resolveOptionNames = (options: CommandOption[] | undefined): string[] => {
             if (!options) return [];
             const [first] = options;
