@@ -13,12 +13,6 @@ export class ComponentBaseEvent extends ReplyBaseEvent {
         return message.editResponse(this.client, this.interaction);
     }
 
-    deferMessage() {
-        return this.client.interaction(this.interaction.id, this.interaction.token).callback({
-            type: InteractionResponseType.DeferredChannelMessageWithSource
-        })
-    }
-
     deferUpdate() {
         return this.client.interaction(this.interaction.id, this.interaction.token).callback({
             type: InteractionResponseType.DeferredMessageUpdate

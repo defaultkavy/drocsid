@@ -4,7 +4,7 @@ import type { PathResolver } from "../lib/utils";
 import { ComponentBaseEvent } from "./ComponentBaseEvent";
 
 export class MessageComponentEvent<Data extends APIMessageComponentInteractionData = APIMessageComponentInteractionData, Path extends string = ''> extends ComponentBaseEvent {
-    declare interaction: Omit<APIMessageComponentInteraction, 'data'> & { data: Data }
+    declare interaction: APIMessageComponentInteractionDataWrapper<Data>;
     data: Data;
     params: PathResolver<Path, string> = {} as any;
     constructor(client: Discord.Client, interaction: APIMessageComponentInteraction) {
@@ -12,3 +12,5 @@ export class MessageComponentEvent<Data extends APIMessageComponentInteractionDa
         this.data = interaction.data as Data;
     }
 }
+
+export type APIMessageComponentInteractionDataWrapper<T> = Omit<APIMessageComponentInteraction, 'data'> & { data: T }

@@ -1,8 +1,8 @@
-import { ApplicationCommandOptionType, InteractionResponseType, InteractionType, type APIApplicationCommandAutocompleteInteraction, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIApplicationCommandOptionChoice, type APIAutocompleteApplicationCommandInteractionData } from "discord-api-types/payloads";
+import { ApplicationCommandOptionType, InteractionResponseType, InteractionType, type APIApplicationCommandAutocompleteInteraction, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandOptionChoice, type APIAutocompleteApplicationCommandInteractionData } from "discord-api-types/payloads";
 import type { Discord } from "../..";
 import { BaseEvent } from "./BaseEvent";
 import { loggerMap } from "../lib/logger";
-import type { ChatCommandBuilderAutocompleteOption, ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
+import type { ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
 
 export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilderOption>> extends BaseEvent {
     declare interaction: APIApplicationCommandAutocompleteInteraction;
@@ -53,7 +53,7 @@ export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilder
 type ResolveFocusedOption<Options extends Record<string, ChatCommandBuilderOption>> = 
     Options[keyof Options] extends infer Option 
         ? Option extends { autocomplete: true } 
-            ? Option 
+            ? Omit<Option, 'required' | 'autocomplete'> 
             : never 
         : never;
 

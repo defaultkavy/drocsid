@@ -18,7 +18,7 @@ export class UserAPI {
      * @returns User object {@link Discord.User}
      */
     get() {
-        return this.client.api.get<UserAPI.Get.Result>(`${this.path}`)
+        return this.client.http.get<UserAPI.Get.Result>(`${this.path}`)
     }
 }
 

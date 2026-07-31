@@ -19,7 +19,7 @@ export class GuildRoleAPI {
      * @returns Guild role object {@link Discord.Guild.Role}
      */
     get() {
-        return this.client.api.get<Discord.Guild.Role.API.Get.Result>(`${this.path}`)
+        return this.client.http.get<Discord.Guild.Role.API.Get.Result>(`${this.path}`)
     }
     
     /** 
@@ -29,7 +29,7 @@ export class GuildRoleAPI {
      * @returns List of guild role object {@link Discord.Guild.Role}
      */
     modify(params: Discord.Guild.Role.API.Modify.Params, reason?: string) {
-        return this.client.api.patch<Discord.Guild.Role.API.Modify.Params>(`${this.path}`, params, reason)
+        return this.client.http.patch<Discord.Guild.Role.API.Modify.Params>(`${this.path}`, params, reason)
     }
 
     /** 
@@ -38,7 +38,7 @@ export class GuildRoleAPI {
      * @permissions MANAGE_ROLES
      */
     delete(reason?: string) {
-        return this.client.api.delete<Discord.Guild.Role.API.Delete.Result>(`${this.path}`, reason)
+        return this.client.http.delete<Discord.Guild.Role.API.Delete.Result>(`${this.path}`, reason)
     }
 }
 

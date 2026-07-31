@@ -13,7 +13,7 @@ export class ClientUserAPI extends UserAPI {
      * @returns User object {@link Discord.User}
      */
     modify(params: Discord.Client.User.API.Modify.Params) {
-        return this.client.api.patch<Discord.Client.User.API.Modify.Result>(`${this.path}`, params);
+        return this.client.http.patch<Discord.Client.User.API.Modify.Result>(`${this.path}`, params);
     }
 
     /**
@@ -21,7 +21,7 @@ export class ClientUserAPI extends UserAPI {
      * @returns List of guild preview object {@link Discord.Guild.Preview}
      */
     getGuilds() {
-        return this.client.api.get<Discord.Client.User.API.GetGuilds.Result>(`${this.path}/guilds`)
+        return this.client.http.get<Discord.Client.User.API.GetGuilds.Result>(`${this.path}/guilds`)
     }
 
     /**
@@ -30,7 +30,7 @@ export class ClientUserAPI extends UserAPI {
      * @returns List of guild member object {@link Discord.Guild.Member}
      */
     getGuildMember(guild_id: string) {
-        return this.client.api.get<Discord.Client.User.API.GetGuildMember.Result>(`${this.path}/guilds/${guild_id}/member`)
+        return this.client.http.get<Discord.Client.User.API.GetGuildMember.Result>(`${this.path}/guilds/${guild_id}/member`)
     }
 
     /**
@@ -38,7 +38,7 @@ export class ClientUserAPI extends UserAPI {
      * @event GUILD_DELETE & GUILD_MEMBER_REMOVE
      */
     leaveGuild(guild_id: string) {
-        return this.client.api.delete<Discord.Client.User.API.Leave.Result>(`${this.path}/guilds/${guild_id}`)
+        return this.client.http.delete<Discord.Client.User.API.Leave.Result>(`${this.path}/guilds/${guild_id}`)
     }
 }
 

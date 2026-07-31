@@ -11,10 +11,10 @@ export class GuildMemberRoleAPI {
     }
 
     add() {
-        return this.client.api.put<void>(`/guilds/${this.guild_id}/members/${this.user_id}/roles/${this.role_id}`)
+        return this.client.http.put<void>(`/guilds/${this.guild_id}/members/${this.user_id}/roles/${this.role_id}`)
     }
 
     remove() {
-        return this.client.api.delete<void>(`/guilds/${this.guild_id}/members/${this.user_id}/roles/${this.role_id}`)
+        return this.client.http.delete<void>(`/guilds/${this.guild_id}/members/${this.user_id}/roles/${this.role_id}`)
     }
 }

@@ -40,7 +40,7 @@ export class ApplicationAPI {
      * Returns the application object associated with the requesting bot user.
      */
     get() {
-        return this.client.api.get<ApplicationAPI.Get.Result>(this.path);
+        return this.client.http.get<ApplicationAPI.Get.Result>(this.path);
     }
 
     /**
@@ -48,7 +48,7 @@ export class ApplicationAPI {
      * @returns Updated application object
      */
     modify(params: ApplicationAPI.Modify.Params) {
-        return this.client.api.patch<ApplicationAPI.Modify.Result>(this.path, params);
+        return this.client.http.patch<ApplicationAPI.Modify.Result>(this.path, params);
     }
 
     get roleConnectionMetadata() {
@@ -57,7 +57,7 @@ export class ApplicationAPI {
              * Returns a list of application role connection metadata objects for the given application.
              */
             list: () => {
-                return this.client.api.get<ApplicationAPI.RoleConnectionMetadata.List.Result>(
+                return this.client.http.get<ApplicationAPI.RoleConnectionMetadata.List.Result>(
                     `/applications/${this.client.config.client_id}/role-connections/metadata`
                 );
             },
@@ -67,7 +67,7 @@ export class ApplicationAPI {
              * @permissions Bot must have the `role_connections.write` OAuth2 scope
              */
             update: (params: ApplicationAPI.RoleConnectionMetadata.Update.Params) => {
-                return this.client.api.put<ApplicationAPI.RoleConnectionMetadata.Update.Result>(
+                return this.client.http.put<ApplicationAPI.RoleConnectionMetadata.Update.Result>(
                     `/applications/${this.client.config.client_id}/role-connections/metadata`,
                     params
                 );
@@ -91,8 +91,8 @@ export class ApplicationAPI {
              * Fetch all global commands for this application.
              */
             list: (query?: ApplicationAPI.Command.List.Query) => {
-                return this.client.api.get<ApplicationAPI.Command.List.Result>(
-                    `${this.path}/commands${this.client.api.query(query)}`
+                return this.client.http.get<ApplicationAPI.Command.List.Result>(
+                    `${this.path}/commands${this.client.http.query(query)}`
                 );
             },
 
@@ -101,7 +101,7 @@ export class ApplicationAPI {
              * @event Commands may take up to 1 hour to propagate globally.
              */
             create: (params: ApplicationAPI.Command.Create.Params) => {
-                return this.client.api.post<ApplicationAPI.Command.Create.Result>(
+                return this.client.http.post<ApplicationAPI.Command.Create.Result>(
                     `${this.path}/commands`, params
                 );
             },
@@ -110,7 +110,7 @@ export class ApplicationAPI {
              * Bulk overwrite all global commands. Replaces the full list.
              */
             bulkOverwrite: (params: ApplicationAPI.Command.BulkOverwrite.Params) => {
-                return this.client.api.put<ApplicationAPI.Command.BulkOverwrite.Result>(
+                return this.client.http.put<ApplicationAPI.Command.BulkOverwrite.Result>(
                     `${this.path}/commands`, params
                 );
             }
@@ -124,8 +124,8 @@ export class ApplicationAPI {
                  * Fetch all guild commands for this application.
                  */
                 list: (query?: ApplicationAPI.Command.Guild.List.Query) => {
-                    return this.client.api.get<ApplicationAPI.Command.Guild.List.Result>(
-                        `${this.path}/guilds/${guild_id}/commands${this.client.api.query(query)}`
+                    return this.client.http.get<ApplicationAPI.Command.Guild.List.Result>(
+                        `${this.path}/guilds/${guild_id}/commands${this.client.http.query(query)}`
                     );
                 },
 
@@ -133,7 +133,7 @@ export class ApplicationAPI {
                  * Create a new guild command.
                  */
                 create: (params: ApplicationAPI.Command.Guild.Create.Params) => {
-                    return this.client.api.post<ApplicationAPI.Command.Guild.Create.Result>(
+                    return this.client.http.post<ApplicationAPI.Command.Guild.Create.Result>(
                         `${this.path}/guilds/${guild_id}/commands`, params
                     );
                 },
@@ -142,7 +142,7 @@ export class ApplicationAPI {
                  * Bulk overwrite all guild commands. Replaces the full list.
                  */
                 bulkOverwrite: (params: ApplicationAPI.Command.Guild.BulkOverwrite.Params) => {
-                    return this.client.api.put<ApplicationAPI.Command.Guild.BulkOverwrite.Result>(
+                    return this.client.http.put<ApplicationAPI.Command.Guild.BulkOverwrite.Result>(
                         `${this.path}/guilds/${guild_id}/commands`, params
                     );
                 },
@@ -151,7 +151,7 @@ export class ApplicationAPI {
                  * Returns all command permissions for all commands in this guild.
                  */
                 permissions: () => {
-                    return this.client.api.get<ApplicationAPI.Command.Guild.Permissions.List.Result>(
+                    return this.client.http.get<ApplicationAPI.Command.Guild.Permissions.List.Result>(
                         `${this.path}/guilds/${guild_id}/commands/permissions`
                     );
                 }

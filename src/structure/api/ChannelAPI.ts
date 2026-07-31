@@ -17,6 +17,7 @@ import type {
 } from "discord-api-types/rest";
 import { Discord } from "../../..";
 import { MessageAPI } from "./MessageAPI";
+import type { FileResolver } from "../HTTP";
 
 export class ChannelAPI {
     client; channel_id;
@@ -34,7 +35,7 @@ export class ChannelAPI {
      * @permissions VIEW_CHANNEL (guild channel)
      */
     get() {
-        return this.client.api.get<ChannelAPI.Get.Result>(`${this.path}`);
+        return this.client.http.get<ChannelAPI.Get.Result>(`${this.path}`);
     }
 
     /**
@@ -43,7 +44,7 @@ export class ChannelAPI {
      * @permissions MANAGE_CHANNELS
      */
     modify(params: ChannelAPI.Modify.Params, reason?: string) {
-        return this.client.api.patch<ChannelAPI.Modify.Result>(`${this.path}`, params, reason);
+        return this.client.http.patch<ChannelAPI.Modify.Result>(`${this.path}`, params, reason);
     }
 
     /**
@@ -52,7 +53,7 @@ export class ChannelAPI {
      * @permissions MANAGE_CHANNELS (guild channel)
      */
     delete(reason?: string) {
-        return this.client.api.delete<ChannelAPI.Delete.Result>(`${this.path}`, undefined, reason);
+        return this.client.http.delete<ChannelAPI.Delete.Result>(`${this.path}`, undefined, reason);
     }
 
     /**
@@ -70,7 +71,7 @@ export class ChannelAPI {
              * @permissions VIEW_CHANNEL & READ_MESSAGE_HISTORY
              */
             list: (query?: ChannelAPI.Message.List.Query) => {
-                return this.client.api.get<ChannelAPI.Message.List.Result>(`${this.path}/messages${this.client.api.query(query)}`);
+                return this.client.http.get<ChannelAPI.Message.List.Result>(`${this.path}/messages${this.client.http.query(query)}`);
             },
 
             /**
@@ -78,8 +79,8 @@ export class ChannelAPI {
              * @event MESSAGE_CREATE
              * @permissions SEND_MESSAGES (or SEND_MESSAGES_IN_THREADS for threads)
              */
-            create: (params: ChannelAPI.Message.Create.Params) => {
-                return this.client.api.post<ChannelAPI.Message.Create.Result>(`${this.path}/messages`, params);
+            create: (params: ChannelAPI.Message.Create.Params, files?: FileResolver[]) => {
+                return this.client.http.fetch<ChannelAPI.Message.Create.Result>('POST', `${this.path}/messages`, params, files);
             },
 
             /**
@@ -87,7 +88,7 @@ export class ChannelAPI {
              * @permissions MANAGE_MESSAGES
              */
             bulkDelete: (params: ChannelAPI.Message.BulkDelete.Params) => {
-                return this.client.api.post<ChannelAPI.Message.BulkDelete.Result>(`${this.path}/messages/bulk-delete`, params);
+                return this.client.http.post<ChannelAPI.Message.BulkDelete.Result>(`${this.path}/messages/bulk-delete`, params);
             }
         }
     }
@@ -99,7 +100,7 @@ export class ChannelAPI {
              * @permissions VIEW_CHANNEL & READ_MESSAGE_HISTORY
              */
             list: (query?: ChannelAPI.Pin.List.Query) => {
-                return this.client.api.get<ChannelAPI.Pin.List.Result>(`${this.path}/messages/pins${this.client.api.query(query)}`);
+                return this.client.http.get<ChannelAPI.Pin.List.Result>(`${this.path}/messages/pins${this.client.http.query(query)}`);
             }
         }
     }
@@ -110,7 +111,7 @@ export class ChannelAPI {
      * @permissions CREATE_PUBLIC_THREADS or CREATE_PRIVATE_THREADS
      */
     startThread(params: ChannelAPI.StartThread.Params, reason?: string) {
-        return this.client.api.post<ChannelAPI.StartThread.Result>(`${this.path}/threads`, params, reason);
+        return this.client.http.post<ChannelAPI.StartThread.Result>(`${this.path}/threads`, params, reason);
     }
 
     /**
@@ -118,7 +119,7 @@ export class ChannelAPI {
      * @permissions SEND_MESSAGES (or SEND_MESSAGES_IN_THREADS for threads)
      */
     triggerTyping() {
-        return this.client.api.post<ChannelAPI.TriggerTyping.Result>(`${this.path}/typing`, undefined);
+        return this.client.http.post<ChannelAPI.TriggerTyping.Result>(`${this.path}/typing`, undefined);
     }
 }
 

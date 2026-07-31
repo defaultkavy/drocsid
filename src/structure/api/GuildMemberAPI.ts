@@ -19,7 +19,7 @@ export class GuildMemberAPI {
      * @returns Guild member object {@link Discord.Guild.Member}
      */
     get() {
-        return this.client.api.get<Discord.Guild.Member.API.Get.Result>(`${this.path}`)
+        return this.client.http.get<Discord.Guild.Member.API.Get.Result>(`${this.path}`)
     }
 
     /** 
@@ -29,7 +29,7 @@ export class GuildMemberAPI {
      * @returns Guild member object {@link Discord.Guild.Member}
      */
     modify(params: Discord.Guild.Member.API.Modify.Params) {
-        return this.client.api.patch<Discord.Guild.Member.API.Modify.Result>(`${this.path}`, params)
+        return this.client.http.patch<Discord.Guild.Member.API.Modify.Result>(`${this.path}`, params)
     }
 
     /** 
@@ -38,7 +38,7 @@ export class GuildMemberAPI {
      * @permissions KICK_MEMBERS
      */
     remove() {
-        return this.client.api.delete<Discord.Guild.Member.API.Remove.Result>(`${this.path}`)
+        return this.client.http.delete<Discord.Guild.Member.API.Remove.Result>(`${this.path}`)
     }
     
     /** 
@@ -51,7 +51,7 @@ export class GuildMemberAPI {
      * @returns Guild member object {@link Discord.Guild.Member}
      */
     add(params: Discord.Guild.Member.API.Add.Params) {
-        return this.client.api.put<Discord.Guild.Member.API.Add.Result>(`${this.path}`, params)
+        return this.client.http.put<Discord.Guild.Member.API.Add.Result>(`${this.path}`, params)
     }
 
     role(role_id: string) {

@@ -2,7 +2,7 @@ import { ClientUserAPI } from "./api/ClientUserAPI";
 import { GuildAPI } from "./api/GuildAPI";
 import { UserAPI } from "./api/UserAPI";
 import { Gateway } from "./Gateway";
-import { API } from "./api/API";
+import { HTTP } from "./HTTP";
 import { ChannelAPI } from "./api/ChannelAPI";
 import { ApplicationAPI } from "./api/ApplicationAPI";
 import type { GatewayDispatchEvents, GatewayReadyDispatchData } from "discord-api-types/gateway";
@@ -22,13 +22,13 @@ const logger = loggerMap.client;
 export class Client {
     config: Client.Config;
     gateway: Gateway;
-    api: API;
+    http: HTTP;
     client: this;
     constructor(config: Client.Config) {
         this.client = this;
         this.config = config;
         this.gateway = new Gateway(this, config.client_token, config.intents ?? []);
-        this.api = new API(this.config.client_token);
+        this.http = new HTTP(this.config.client_token);
     }
 
     async connect() {
@@ -74,7 +74,7 @@ export class Client {
         return new ApplicationAPI(this, application_id);
     }
 
-    onmodal<K extends string | RegExp, M extends ModalBuilder>(builder: M | ((...args: any[]) => M) | ((...args: any[]) => Promise<M>), custom_id: K, handle: (event: ModalComponentEvent<M, K extends string ? K : ''>) => void) {
+    onmodal<M extends ModalBuilder, K extends string | RegExp>(builder: M | ((...args: any[]) => M) | ((...args: any[]) => Promise<M>), custom_id: K, handle: (event: ModalComponentEvent<M, K extends string ? K : ''>) => void) {
         return this.on('InteractionCreate', i => {
             if (i.type !== InteractionType.ModalSubmit) return;
             if (custom_id instanceof RegExp && !custom_id.test(i.data.custom_id)) return;
@@ -112,14 +112,16 @@ export class Client {
             const resPart = resolveParts[i];
             if (!resPart) throw log.fatal('resPart is undefined');
             const reqPart = requestParts[i];
-            if (!reqPart) return false;
             const matched = resPart.match(/{(.+?)}/);
             if (matched) {
-                log.debug(`custom_id matched (${matched[1]}: ${reqPart})`)
+                const paramName = matched[1]!;
+                if (!paramName.endsWith('?') && !reqPart) return false;
+                log.debug(`params matched (${matched[1]}: ${reqPart})`)
                 Object.assign(event.params, {[matched[1]!]: reqPart});
             }
             else if (reqPart !== resPart) return false;
         }
+        log.debug(`custom id matched (${custom_id})`)
         return true;
     }
 

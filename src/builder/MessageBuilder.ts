@@ -2,11 +2,21 @@ import { type APIAllowedMentions, type APIEmbed, type APIInteraction, type APIMe
 import type { RESTAPIAttachment, RESTAPIMessageReference, RESTAPIPoll, RESTPostAPIChannelMessageJSONBody } from "discord-api-types/rest";
 import { ComponentsBuilder, type MessageComponentsBuilder } from "./MessageComponentsBuilder";
 import type { Discord } from "../..";
+import type { FileResolver } from "../structure/HTTP";
 
 export class MessageBuilder {
     config: RESTPostAPIChannelMessageJSONBody;
     constructor() {
         this.config = {}
+    }
+
+    use(handle: (builder: this) => this) {
+        return handle(this);
+    }
+    
+    if(condition: boolean, handle: (builder: this) => this) {
+        if (condition) handle(this);
+        return this;
     }
 
     content(content: string) {
@@ -94,18 +104,18 @@ export class MessageBuilder {
         return this;
     }
 
-    send(client: Discord.Client, channel_id: string) {
-        return client.channel(channel_id).messages.create(this.config)
+    send(client: Discord.Client, channel_id: string, files?: FileResolver[]) {
+        return client.channel(channel_id).messages.create(this.config, files)
     }
 
-    replyInteraction(client: Discord.Client, interaction: APIInteraction) {
+    replyInteraction(client: Discord.Client, interaction: APIInteraction, files?: FileResolver[]) {
         return client.interaction(interaction.id, interaction.token).callback({
             type: InteractionResponseType.ChannelMessageWithSource,
             data: this.config
-        })
+        }, files)
     }
 
-    editResponse(client: Discord.Client, interaction: APIInteraction) {
-        return client.interaction(interaction.id, interaction.token).originalResponse.edit(this.config)
+    editResponse(client: Discord.Client, interaction: APIInteraction, files?: FileResolver[]) {
+        return client.interaction(interaction.id, interaction.token).originalResponse.edit(this.config, files)
     }
 }

@@ -37,7 +37,7 @@ export class MessageAPI {
      * @returns Message object
      */
     get() {
-        return this.client.api.get<MessageAPI.Get.Result>(`${this.path}`);
+        return this.client.http.get<MessageAPI.Get.Result>(`${this.path}`);
     }
 
     /**
@@ -47,7 +47,7 @@ export class MessageAPI {
      * @returns Updated message object
      */
     modify(params: MessageAPI.Modify.Params) {
-        return this.client.api.patch<MessageAPI.Modify.Result>(`${this.path}`, params);
+        return this.client.http.patch<MessageAPI.Modify.Result>(`${this.path}`, params);
     }
 
     /**
@@ -56,7 +56,7 @@ export class MessageAPI {
      * @permissions MANAGE_MESSAGES (when deleting other users' messages)
      */
     delete(reason?: string) {
-        return this.client.api.delete<MessageAPI.Delete.Result>(`${this.path}`, undefined, reason);
+        return this.client.http.delete<MessageAPI.Delete.Result>(`${this.path}`, undefined, reason);
     }
 
     /**
@@ -66,7 +66,7 @@ export class MessageAPI {
      * @returns Crossposted message object
      */
     crosspost() {
-        return this.client.api.post<MessageAPI.Crosspost.Result>(`${this.path}/crosspost`, {});
+        return this.client.http.post<MessageAPI.Crosspost.Result>(`${this.path}/crosspost`, {});
     }
 
     /**
@@ -74,7 +74,7 @@ export class MessageAPI {
      * @permissions MANAGE_MESSAGES
      */
     pin(reason?: string) {
-        return this.client.api.put<MessageAPI.Pin.Result>(`/channels/${this.channel_id}/messages/pins/${this.message_id}`, undefined, reason);
+        return this.client.http.put<MessageAPI.Pin.Result>(`/channels/${this.channel_id}/messages/pins/${this.message_id}`, undefined, reason);
     }
 
     /**
@@ -82,7 +82,7 @@ export class MessageAPI {
      * @permissions MANAGE_MESSAGES
      */
     unpin(reason?: string) {
-        return this.client.api.delete<MessageAPI.Unpin.Result>(`/channels/${this.channel_id}/messages/pins/${this.message_id}`, undefined, reason);
+        return this.client.http.delete<MessageAPI.Unpin.Result>(`/channels/${this.channel_id}/messages/pins/${this.message_id}`, undefined, reason);
     }
 
     /**
@@ -91,7 +91,7 @@ export class MessageAPI {
      * @permissions CREATE_PUBLIC_THREADS
      */
     startThread(params: MessageAPI.StartThread.Params, reason?: string) {
-        return this.client.api.post<MessageAPI.StartThread.Result>(`${this.path}/threads`, params, reason);
+        return this.client.http.post<MessageAPI.StartThread.Result>(`${this.path}/threads`, params, reason);
     }
 
     get reactions() {
@@ -101,7 +101,7 @@ export class MessageAPI {
              * @permissions MANAGE_MESSAGES
              */
             deleteAll: () => {
-                return this.client.api.delete<MessageAPI.Reaction.DeleteAll.Result>(`${this.path}/reactions`);
+                return this.client.http.delete<MessageAPI.Reaction.DeleteAll.Result>(`${this.path}/reactions`);
             },
         };
     }

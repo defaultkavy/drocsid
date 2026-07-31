@@ -30,7 +30,7 @@ export class MessageReactionAPI {
      * @permissions READ_MESSAGE_HISTORY (and ADD_REACTIONS when adding a new emoji reaction)
      */
     create() {
-        return this.client.api.put<MessageReactionAPI.Create.Result>(`${this.path}/@me`);
+        return this.client.http.put<MessageReactionAPI.Create.Result>(`${this.path}/@me`);
     }
 
     /**
@@ -38,7 +38,7 @@ export class MessageReactionAPI {
      * @permissions READ_MESSAGE_HISTORY
      */
     deleteClient() {
-        return this.client.api.delete<MessageReactionAPI.DeleteOwn.Result>(`${this.path}/@me`);
+        return this.client.http.delete<MessageReactionAPI.DeleteOwn.Result>(`${this.path}/@me`);
     }
 
     /**
@@ -46,7 +46,7 @@ export class MessageReactionAPI {
      * @permissions MANAGE_MESSAGES
      */
     deleteUser(user_id: string) {
-        return this.client.api.delete<MessageReactionAPI.DeleteUser.Result>(`${this.path}/${user_id}`);
+        return this.client.http.delete<MessageReactionAPI.DeleteUser.Result>(`${this.path}/${user_id}`);
     }
 
     /**
@@ -54,7 +54,7 @@ export class MessageReactionAPI {
      * @permissions READ_MESSAGE_HISTORY
      */
     getUsers(query?: MessageReactionAPI.GetUsers.Query) {
-        return this.client.api.get<MessageReactionAPI.GetUsers.Result>(`${this.path}${this.client.api.query(query)}`);
+        return this.client.http.get<MessageReactionAPI.GetUsers.Result>(`${this.path}${this.client.http.query(query)}`);
     }
 
     /**
@@ -62,7 +62,7 @@ export class MessageReactionAPI {
      * @permissions MANAGE_MESSAGES
      */
     delete() {
-        return this.client.api.delete<MessageReactionAPI.Delete.Result>(`${this.path}`);
+        return this.client.http.delete<MessageReactionAPI.Delete.Result>(`${this.path}`);
     }
 }
 

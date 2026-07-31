@@ -13,6 +13,7 @@ import type {
     RESTPostAPIInteractionFollowupResult
 } from "discord-api-types/rest";
 import type { Discord } from "../../..";
+import type { FileResolver } from "../HTTP";
 
 export class InteractionAPI {
     client: Discord.Client;
@@ -37,8 +38,8 @@ export class InteractionAPI {
      * Create an interaction response.
      * @event Cannot be followed by more than one interaction response or followup message within a 5 minute window.
      */
-    callback(params: InteractionAPI.Callback.Params) {
-        return this.client.api.post<InteractionAPI.Callback.Result>(`${this.path}/callback?with_response=true`, params);
+    callback(params: InteractionAPI.Callback.Params, files?: FileResolver[]) {
+        return this.client.http.fetch<InteractionAPI.Callback.Result>('POST', `${this.path}/callback?with_response=true`, params, files);
     }
 
     get originalResponse() {
@@ -47,7 +48,7 @@ export class InteractionAPI {
              * Returns the initial interaction response.
              */
             get: () => {
-                return this.client.api.get<InteractionAPI.OriginalResponse.Get.Result>(
+                return this.client.http.get<InteractionAPI.OriginalResponse.Get.Result>(
                     `${this.webhookPath}/messages/@original`
                 );
             },
@@ -56,17 +57,15 @@ export class InteractionAPI {
              * Edits the initial interaction response.
              * @event New token expires 15 minutes from the original request.
              */
-            edit: (params: InteractionAPI.OriginalResponse.Edit.Params) => {
-                return this.client.api.patch<InteractionAPI.OriginalResponse.Edit.Result>(
-                    `${this.webhookPath}/messages/@original`, params
-                );
+            edit: (params: InteractionAPI.OriginalResponse.Edit.Params, files?: FileResolver[]) => {
+                return this.client.http.fetch<InteractionAPI.OriginalResponse.Edit.Result>('PATCH', `${this.webhookPath}/messages/@original`, params, files);
             },
 
             /**
              * Deletes the initial interaction response.
              */
             delete: () => {
-                return this.client.api.delete<InteractionAPI.OriginalResponse.Delete.Result>(
+                return this.client.http.delete<InteractionAPI.OriginalResponse.Delete.Result>(
                     `${this.webhookPath}/messages/@original`
                 );
             }
@@ -76,10 +75,8 @@ export class InteractionAPI {
     /**
      * Creates a followup message for an interaction.
      */
-    followup(params: InteractionAPI.Followup.Create.Params) {
-        return this.client.api.post<InteractionAPI.Followup.Create.Result>(
-            `${this.webhookPath}`, params
-        );
+    followup(params: InteractionAPI.Followup.Create.Params, files?: FileResolver[]) {
+        return this.client.http.fetch<InteractionAPI.Followup.Create.Result>('POST', `${this.webhookPath}`, params, files);
     }
 
     /**
@@ -93,22 +90,22 @@ export class InteractionAPI {
              * Returns a followup message for an interaction.
              */
             get: () => {
-                return this.client.api.get<InteractionAPI.FollowupMessage.Get.Result>(messagePath);
+                return this.client.http.get<InteractionAPI.FollowupMessage.Get.Result>(messagePath);
             },
 
             /**
              * Edits a followup message.
              * @event New token expires 15 minutes from the original request.
              */
-            edit: (params: InteractionAPI.FollowupMessage.Edit.Params) => {
-                return this.client.api.patch<InteractionAPI.FollowupMessage.Edit.Result>(messagePath, params);
+            edit: (params: InteractionAPI.FollowupMessage.Edit.Params, files?: FileResolver[]) => {
+                return this.client.http.fetch<InteractionAPI.FollowupMessage.Edit.Result>('PATCH', messagePath, params, files);
             },
 
             /**
              * Deletes a followup message.
              */
             delete: () => {
-                return this.client.api.delete<InteractionAPI.FollowupMessage.Delete.Result>(messagePath);
+                return this.client.http.delete<InteractionAPI.FollowupMessage.Delete.Result>(messagePath);
             }
         };
     }

@@ -1,4 +1,4 @@
-import { type APIActionRowComponent, type APIButtonComponentBase, type APIChannelSelectComponent, type APIComponentInContainer, type APIComponentInMessageActionRow, type APIContainerComponent, type APIFileComponent, type APILabelComponent, type APIMediaGalleryComponent, type APIMediaGalleryItem, type APIMentionableSelectComponent, type APIMessageComponent, type APIMessageTopLevelComponent, type APIRoleSelectComponent, type APISectionAccessoryComponent, type APISeparatorComponent, type APIStringSelectComponent, type APITextDisplayComponent, type APIThumbnailComponent, type APIUnfurledMediaItem, type APIUserSelectComponent, ButtonStyle, ComponentType } from "discord-api-types/payloads";
+import { type APIActionRowComponent, type APIButtonComponentBase, type APIChannelSelectComponent, type APIComponentInContainer, type APIComponentInMessageActionRow, type APIContainerComponent, type APIFileComponent, type APILabelComponent, type APIMediaGalleryComponent, type APIMediaGalleryItem, type APIMentionableSelectComponent, type APIMessageComponent, type APIMessageTopLevelComponent, type APIRoleSelectComponent, type APISectionAccessoryComponent, type APISectionComponent, type APISeparatorComponent, type APIStringSelectComponent, type APITextDisplayComponent, type APIThumbnailComponent, type APIUnfurledMediaItem, type APIUserSelectComponent, ButtonStyle, ComponentType } from "discord-api-types/payloads";
 import { customIdMaxLengthCheck } from "../lib/utils";
 
 export class ComponentsBuilder<T> {
@@ -10,9 +10,9 @@ export class ComponentsBuilder<T> {
         return this;
     }
 
-    if(condition: boolean, handle: () => void) {
-        if (condition) handle();
-        return this;
+    if(condition: boolean, handle: (builder: T) => void) {
+        if (condition) handle(this as unknown as T);
+        return this as unknown as T;
     }
 
     actionRow(handle: (actionRow: ActionRowBuilder) => void) {
@@ -97,8 +97,12 @@ export interface MessageContainerComponentsBuilder extends Omit<ComponentsBuilde
     components: APIComponentInContainer[];
 }
 
+export interface MessageContainerSectionComponentsBuilder extends Pick<ComponentsBuilder<MessageContainerSectionComponentsBuilder>, 'textDisplay' | 'if' | 'use'> {
+    components: APITextDisplayComponent[];
+}
+
 type SectionOptions = { 
-    texts: (string | Omit<APITextDisplayComponent, 'type'>)[];
+    texts: (Omit<APITextDisplayComponent, 'type'> | string)[];
     accessory: ((builder: typeof AccessoryBuilder) => APISectionAccessoryComponent) | APISectionAccessoryComponent
 }
 

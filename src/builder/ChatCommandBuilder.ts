@@ -1,5 +1,5 @@
 import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord-api-types/rest";
-import { type APIApplicationCommandSubcommandGroupOption, type APIApplicationCommandAttachmentOption, type APIApplicationCommandBooleanOption, type APIApplicationCommandChannelOption, type APIApplicationCommandIntegerOption, type APIApplicationCommandMentionableOption, type APIApplicationCommandNumberOption, type APIApplicationCommandOption, type APIApplicationCommandRoleOption, type APIApplicationCommandStringOption, type APIApplicationCommandSubcommandOption, type APIApplicationCommandUserOption, ApplicationCommandOptionType, type APIApplicationCommandInteraction, type APIApplicationCommandInteractionDataIntegerOption, type APIApplicationCommandBasicOption, type APIApplicationRoleConnection, type APIApplicationCommandInteractionDataBasicOption } from "discord-api-types/payloads";
+import { type APIApplicationCommandSubcommandGroupOption, type APIApplicationCommandAttachmentOption, type APIApplicationCommandBooleanOption, type APIApplicationCommandChannelOption, type APIApplicationCommandIntegerOption, type APIApplicationCommandMentionableOption, type APIApplicationCommandNumberOption, type APIApplicationCommandRoleOption, type APIApplicationCommandStringOption, type APIApplicationCommandSubcommandOption, type APIApplicationCommandUserOption, ApplicationCommandOptionType, type APIApplicationCommandBasicOption, type APIApplicationCommandInteractionDataBasicOption, type APIUser, type APIRole, type APIInteractionDataResolvedGuildMember, type APIInteractionDataResolvedChannel, type APIAttachment } from "discord-api-types/payloads";
 import { CommandBuilder } from "./CommandBuilder";
 import { ChatCommandEvent } from "../event/ChatCommandEvent";
 import type { AutocompleteEvent } from "../event/AutocompleteEvent";
@@ -37,27 +37,27 @@ export abstract class ChatCommandBuilderBase<Options extends Record<string, Chat
     
     attachmentOption<N extends string, const C extends Omit<APIApplicationCommandAttachmentOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
         this.config.options?.push({...config, type: ApplicationCommandOptionType.Attachment, name, description} as APIApplicationCommandAttachmentOption);
-        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Attachment, value: string, required: C['required'] }>>;
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Attachment, value: APIAttachment, required: C['required'] }>>;
     }
 
     userOption<N extends string, const C extends Omit<APIApplicationCommandUserOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
         this.config.options?.push({...config, type: ApplicationCommandOptionType.User, name, description} as APIApplicationCommandUserOption);
-        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.User, value: string, required: C['required'] }>>;
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.User, value: APIUser, required: C['required'] }>>;
     }
 
     channelOption<N extends string, const C extends Omit<APIApplicationCommandChannelOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
         this.config.options?.push({...config, type: ApplicationCommandOptionType.Channel, name, description} as APIApplicationCommandChannelOption);
-        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Channel, value: string, required: C['required'] }>>;
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Channel, value: APIInteractionDataResolvedChannel, required: C['required'] }>>;
     }
 
     roleOption<N extends string, const C extends Omit<APIApplicationCommandRoleOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
         this.config.options?.push({...config, type: ApplicationCommandOptionType.Role, name, description} as APIApplicationCommandRoleOption);
-        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Role, value: string, required: C['required'] }>>;
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Role, value: APIRole, required: C['required'] }>>;
     }
 
     mentionableOption<N extends string, const C extends Omit<APIApplicationCommandMentionableOption, 'type' | 'name' | 'description'>>(name: N, description: string, config?: C) {
         this.config.options?.push({...config, type: ApplicationCommandOptionType.Mentionable, name, description} as APIApplicationCommandMentionableOption);
-        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Mentionable, value: string, required: C['required'] }>>;
+        return this as this & ChatCommandBuilderBase<Options & Record<N, { name: N, type: ApplicationCommandOptionType.Mentionable, value: ChatCommandBuilderMentionValue, required: C['required'] }>>;
     }
 
     oncall(handle: (e: ChatCommandEvent<this['options']>) => void) {
@@ -78,6 +78,12 @@ export type ChatCommandBuilderOption = ChatCommandBuilderNonAutocompleteOption |
 export type ChatCommandBuilderBasicOption = APIApplicationCommandInteractionDataBasicOption & { required: boolean }
 export type ChatCommandBuilderNonAutocompleteOption = ChatCommandBuilderBasicOption;
 export type ChatCommandBuilderAutocompleteOption = ChatCommandBuilderBasicOption & { autocomplete: boolean };
+
+export type ChatCommandBuilderMentionValue = {
+    user?: APIUser;
+    role?: APIRole;
+    member?: APIInteractionDataResolvedGuildMember;
+}
 
 export class ChatCommandBuilder extends ChatCommandBuilderBase {
     config: RESTPostAPIChatInputApplicationCommandsJSONBody;

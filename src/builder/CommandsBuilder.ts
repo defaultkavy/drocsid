@@ -13,13 +13,9 @@ import { loggerMap } from "../lib/logger";
 const logger = loggerMap.builder;
 
 export class CommandsBuilder {
-    client;
     guildCommands = new Set<CommandBuilder>();
     globalCommands = new Set<CommandBuilder>();
     commands = new Map<string, CommandBuilder>();
-    constructor(client: Discord.Client) {
-        this.client = client;
-    }
 
     addGuildCommand(command: CommandBuilder) {
         this.guildCommands.add(command);
@@ -35,9 +31,9 @@ export class CommandsBuilder {
         return this;
     }
 
-    listen() {
+    listen(client: Discord.Client) {
         const log = logger.prefix('listen()')
-        this.client.on('InteractionCreate', i => {
+        client.on('InteractionCreate', i => {
             if (i.type === InteractionType.ApplicationCommand) {
                 const i_cmd = i.data;
                 switch (i_cmd.type) {
@@ -45,19 +41,19 @@ export class CommandsBuilder {
                         const name = this.commandMapKey(i_cmd);
                         log.debug('chat input command:', name);
                         const cmd = this.commands.get(name) as ChatCommandBuilderBase;
-                        cmd?.listeners.forEach(dispatcher => dispatcher(new ChatCommandEvent(this.client, i as any, i_cmd.options)))
+                        cmd?.listeners.forEach(dispatcher => dispatcher(new ChatCommandEvent(client, i as any, i_cmd.options)))
                         break;
                     }
                     case ApplicationCommandType.Message: {
                         const cmd = this.commands.get(i.data.name) as MessageCommandBuilder;
                         log.debug('message command:', i.data.name);
-                        cmd?.listeners.forEach(dispatcher => dispatcher(new MessageCommandEvent(this.client, i as any)))
+                        cmd?.listeners.forEach(dispatcher => dispatcher(new MessageCommandEvent(client, i as any)))
                         break;
                     }
                     case ApplicationCommandType.User: {
                         const cmd = this.commands.get(i.data.name) as UserCommandBuilder;
                         log.debug('user command:', i.data.name);
-                        cmd?.listeners.forEach(dispatcher => dispatcher(new UserCommandEvent(this.client, i as any)))
+                        cmd?.listeners.forEach(dispatcher => dispatcher(new UserCommandEvent(client, i as any)))
                         break;
                     }
                 }
@@ -66,20 +62,18 @@ export class CommandsBuilder {
             else if (i.type === InteractionType.ApplicationCommandAutocomplete) {
                 const name = this.commandMapKey(i.data);
                 const cmd = this.commands.get(name) as ChatCommandBuilderBase;
-                cmd.autocompleteListeners.forEach(dispatcher => dispatcher(new AutocompleteEvent(this.client, i)))
+                cmd.autocompleteListeners.forEach(dispatcher => dispatcher(new AutocompleteEvent(client, i)))
             }
         })
         return this;
     }
 
-    async deploy() {
-        const guilds = await this.client.me.getGuilds();
-        return Promise.all([
-            this.client.application().commands.bulkOverwrite(
-                Array.from(this.globalCommands).map(cmd => cmd.config) as RESTPutAPIApplicationCommandsJSONBody),
-            ...guilds.map(guild => this.client.application().guild(guild.id).commands.bulkOverwrite(
-                Array.from(this.guildCommands).map(cmd => cmd.config) as RESTPutAPIApplicationGuildCommandsJSONBody))
-        ])
+    async deployGuildCommand(client: Discord.Client, guildId: string) {
+        return client.application().guild(guildId).commands.bulkOverwrite(Array.from(this.guildCommands).map(cmd => cmd.config) as RESTPutAPIApplicationGuildCommandsJSONBody)
+    }
+
+    async deployGlobalCommand(client: Discord.Client) {
+        return client.application().commands.bulkOverwrite(Array.from(this.globalCommands).map(cmd => cmd.config) as RESTPutAPIApplicationCommandsJSONBody)
     }
 
     private commandMapKey(i: APIChatInputApplicationCommandInteractionData | APIAutocompleteApplicationCommandInteractionData): string {

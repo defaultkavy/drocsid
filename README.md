@@ -95,7 +95,7 @@ client.onmodal(modal, 'example-modal/{id}', event => {
     event.data.name // string
     event.data.gender // string[]
     event.data.isHuman // boolean
-    event.data.message // string | undefined (required: false)
+    event.data.message // string
 })
 ```
 

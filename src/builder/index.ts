@@ -18,7 +18,7 @@ export {
 } from './MessageBuilder'
 
 export {
-    ModalBuilder as Modal
+    ModalBuilder as Modal,
 } from './ModalBuilder'
 
 export {

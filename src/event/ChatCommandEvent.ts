@@ -1,11 +1,12 @@
-import { type APIApplicationCommandBasicOption, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIApplicationCommandOption, type APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
+import { type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
 import { Discord } from "../..";
 import { CommandBaseEvent } from "./CommandBaseEvent";
-import type { ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
+import type { ChatCommandBuilderMentionValue, ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
 
-export class ChatCommandEvent<Options extends Record<string, ChatCommandBuilderOption>> extends CommandBaseEvent {
+export class ChatCommandEvent<Options extends Record<string, ChatCommandBuilderOption> = {}> extends CommandBaseEvent {
     data: ResolveChatCommandBuilderOptionsValue<Options>;
     options: ResolveChatCommandBuilderOptions<Options>;
+    declare interaction: APIChatInputApplicationCommandInteraction;
     constructor(client: Discord.Client, interaction: APIChatInputApplicationCommandInteraction, options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined) {
         super(client, interaction);
         this.data = this.resolveOptions(options) as any;
@@ -19,7 +20,26 @@ export class ChatCommandEvent<Options extends Record<string, ChatCommandBuilderO
         if (first.type === ApplicationCommandOptionType.Subcommand || first.type === ApplicationCommandOptionType.SubcommandGroup) 
             return this.resolveOptions(first.options);
         const basicOptions = options as APIApplicationCommandInteractionDataBasicOption<InteractionType.ApplicationCommand>[];
-        return Object.fromEntries(basicOptions.map(option => [option.name, option.value]))
+        return Object.fromEntries(basicOptions.map(option => {
+            switch (option.type) {
+                case ApplicationCommandOptionType.User:
+                    return [option.name, this.interaction.data.resolved?.users?.[option.value]]
+                case ApplicationCommandOptionType.Role:
+                    return [option.name, this.interaction.data.resolved?.roles?.[option.value]]
+                case ApplicationCommandOptionType.Channel:
+                    return [option.name, this.interaction.data.resolved?.channels?.[option.value]]
+                case ApplicationCommandOptionType.Attachment:
+                    return [option.name, this.interaction.data.resolved?.attachments?.[option.value]]
+                case ApplicationCommandOptionType.Mentionable:
+                    return [option.name, {
+                        user: this.interaction.data.resolved?.users?.[option.value],
+                        member: this.interaction.data.resolved?.members?.[option.value],
+                        role: this.interaction.data.resolved?.roles?.[option.value]
+                    } satisfies ChatCommandBuilderMentionValue ]
+                default:
+                    return [option.name, option.value]
+            }
+        }))
     }
 }
 
@@ -28,5 +48,9 @@ type ResolveChatCommandBuilderOptionsValue<Options extends Record<string, ChatCo
 }
 
 type ResolveChatCommandBuilderOptions<Options extends Record<string, ChatCommandBuilderOption>> = {
-    [key in keyof Options]: Omit<APIApplicationCommandInteractionDataBasicOption<InteractionType.ApplicationCommand> & { type: Options[key]['type'] }, 'focused'>
+    [key in keyof Options]: Omit<APIApplicationCommandInteractionDataBasicOption<InteractionType.ApplicationCommand> & { type: Options[key]['type'] }, 'focused'> extends infer V
+        ?   Options[key]['required'] extends true
+            ?   V
+            :   V | undefined
+        :   never
 }

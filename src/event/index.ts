@@ -19,9 +19,14 @@ export {
 } from './ModalComponentEvent';
 
 export {
-    BaseEvent as Base
+    BaseEvent as Base,
+    type BaseGuildEvent as BaseGuild
 } from './BaseEvent';
 
 export {
     ComponentBaseEvent as ComponentBase
 } from './ComponentBaseEvent';
+
+export {
+    ReplyBaseEvent as ReplyBase
+} from './ReplyBaseEvent';

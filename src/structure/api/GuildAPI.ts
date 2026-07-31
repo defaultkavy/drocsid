@@ -21,7 +21,7 @@ export class GuildAPI {
      * @returns Guild object {@link Discord.Guild}
      */
     async get(with_counts: boolean = false) {
-        return this.client.api.get<Discord.Guild.API.Get.Result>(`${this.path}?with_counts=${with_counts}`)
+        return this.client.http.get<Discord.Guild.API.Get.Result>(`${this.path}?with_counts=${with_counts}`)
     }
 
     /**
@@ -32,14 +32,14 @@ export class GuildAPI {
      * @returns Updated guild object {@link Discord.Guild} on success. 
      */
     async modify(params: Discord.Guild.API.Modify.Params, reason?: string) {
-        return this.client.api.patch<Discord.Guild.API.Modify.Result>(`${this.path}`, params, reason)
+        return this.client.http.patch<Discord.Guild.API.Modify.Result>(`${this.path}`, params, reason)
     }
 
     /**
      * Delete a guild. Owner only.
      */
     delete(reason?: string) {
-        return this.client.api.delete<void>(`${this.path}`, reason)
+        return this.client.http.delete<void>(`${this.path}`, reason)
     }
 
     /**
@@ -48,7 +48,7 @@ export class GuildAPI {
      * @returns Guild preview object {@link Discord.Guild.Preview}
      */
     async getPreview() {
-        return this.client.api.get<Discord.Guild.API.GetPreview.Result>(`${this.path}/preview`)
+        return this.client.http.get<Discord.Guild.API.GetPreview.Result>(`${this.path}/preview`)
     }
 
     /**
@@ -67,7 +67,7 @@ export class GuildAPI {
              * @returns List of guild member object {@link Discord.Guild.Member}
              */
             list: (query?: Discord.Guild.Member.API.List.Query) => {
-                return this.client.api.get<Discord.Guild.Member.Data[]>(`${this.path}/members${this.client.api.query(query)}`)
+                return this.client.http.get<Discord.Guild.Member.Data[]>(`${this.path}/members${this.client.http.query(query)}`)
             },
             
             /** 
@@ -75,13 +75,13 @@ export class GuildAPI {
              * @returns List of guild member object {@link Discord.Guild.Member}
              */
             search: (query?: Discord.Guild.Member.API.Search.Query) => {
-                return this.client.api.get<Discord.Guild.Member.Data[]>(`${this.path}/members/search${this.client.api.query(query)}`)
+                return this.client.http.get<Discord.Guild.Member.Data[]>(`${this.path}/members/search${this.client.http.query(query)}`)
             }
         }
     }
 
     modifyClientMember(params: Discord.Guild.Member.API.ModifyClient.Params, reason?: string) {
-        return this.client.api.patch<Discord.Guild.Member.API.ModifyClient.Result>(`${this.path}/members/@me`, params, reason)
+        return this.client.http.patch<Discord.Guild.Member.API.ModifyClient.Result>(`${this.path}/members/@me`, params, reason)
     }
 
     /**
@@ -100,7 +100,7 @@ export class GuildAPI {
              * @returns List of guild ban object {@link Discord.Guild.Ban}
              */
             list: (query?: Discord.Guild.Ban.API.List.Query) => {
-                return this.client.api.get<Discord.Guild.Ban.API.List.Result>(`${this.path}/bans${this.client.api.query(query)}`)
+                return this.client.http.get<Discord.Guild.Ban.API.List.Result>(`${this.path}/bans${this.client.http.query(query)}`)
             },
 
             /** 
@@ -113,7 +113,7 @@ export class GuildAPI {
              * @returns List of guild ban object {@link Discord.Guild.Ban}
              */
             bulk: (params: Discord.Guild.Ban.API.Bulk.Params) => {
-                return this.client.api.post<Discord.Guild.Ban.API.Bulk.Result>(`${this.path}/bulk-ban`, params)
+                return this.client.http.post<Discord.Guild.Ban.API.Bulk.Result>(`${this.path}/bulk-ban`, params)
             }
         }
     }
@@ -125,7 +125,7 @@ export class GuildAPI {
              * @returns List of guild channel object {@link Discord.Guild.Channel}
              */
             list: () => {
-                return this.client.api.get<Discord.Guild.Channel.API.List.Result>(`${this.path}/channels`)
+                return this.client.http.get<Discord.Guild.Channel.API.List.Result>(`${this.path}/channels`)
             },
 
             /** 
@@ -138,7 +138,7 @@ export class GuildAPI {
              * @returns List of guild channel object {@link Discord.Guild.Channel}
              */
             create: (params: Discord.Guild.Channel.API.Create.Params, reason?: string) => {
-                return this.client.api.post<Discord.Guild.Channel.API.Create.Result>(`${this.path}/channels`, params, reason)
+                return this.client.http.post<Discord.Guild.Channel.API.Create.Result>(`${this.path}/channels`, params, reason)
             },
 
             /** 
@@ -148,7 +148,7 @@ export class GuildAPI {
              * @returns List of guild channel object {@link Discord.Guild.Channel}
              */
             modifyPositions: (params: Discord.Guild.Channel.API.ModifyPosition.Params) => {
-                return this.client.api.patch<Discord.Guild.Channel.API.ModifyPosition.Result>(`${this.path}/channels`, params)
+                return this.client.http.patch<Discord.Guild.Channel.API.ModifyPosition.Result>(`${this.path}/channels`, params)
             }
         }
     }
@@ -160,7 +160,7 @@ export class GuildAPI {
              * @returns List of guild role object {@link Discord.Guild.Channel}
              */
             list: () => {
-                return this.client.api.get<Discord.Guild.Role.API.List.Result>(`${this.path}/roles`)
+                return this.client.http.get<Discord.Guild.Role.API.List.Result>(`${this.path}/roles`)
             },
             
             /** 
@@ -168,7 +168,7 @@ export class GuildAPI {
              * @returns Guild role object {@link Discord.Guild.Role}
              */
             getMemberCounts: () => {
-                return this.client.api.get<Discord.Guild.Role.API.GetMemberCounts.Result>(`${this.path}/roles/member-counts`)
+                return this.client.http.get<Discord.Guild.Role.API.GetMemberCounts.Result>(`${this.path}/roles/member-counts`)
             },
             
             /** 
@@ -178,7 +178,7 @@ export class GuildAPI {
              * @returns Guild role object {@link Discord.Guild.Role}
              */
             create: (params: Discord.Guild.Role.API.Create.Params, reason?: string) => {
-                return this.client.api.post<Discord.Guild.Role.API.Create.Result>(`${this.path}/roles`, params, reason)
+                return this.client.http.post<Discord.Guild.Role.API.Create.Result>(`${this.path}/roles`, params, reason)
             },
             
             /** 
@@ -188,7 +188,7 @@ export class GuildAPI {
              * @returns List of guild role object {@link Discord.Guild.Role}
              */
             modifyPositions: (params: Discord.Guild.Role.API.ModifyPositions.Params, reason?: string) => {
-                this.client.api.patch<Discord.Guild.Role.API.ModifyPositions.Result>(`${this.path}/roles`, params, reason)
+                this.client.http.patch<Discord.Guild.Role.API.ModifyPositions.Result>(`${this.path}/roles`, params, reason)
             }
         }
     }
@@ -201,7 +201,7 @@ export class GuildAPI {
              * @returns Guild preview object {@link Discord.Guild.Preview}
              */
             search: (query: Discord.Guild.API.SearchMessages.Query) => {
-                return this.client.api.get<Discord.Guild.API.SearchMessages.Result>(`${this.path}/messages/search${this.client.api.query(query)}`)
+                return this.client.http.get<Discord.Guild.API.SearchMessages.Result>(`${this.path}/messages/search${this.client.http.query(query)}`)
             }
         }
     }

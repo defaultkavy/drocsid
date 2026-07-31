@@ -1,4 +1,4 @@
-import { type APIInteraction } from "discord-api-types/payloads";
+import { type APIGuildInteraction, type APIInteraction } from "discord-api-types/payloads";
 import type { Discord } from "../..";
 
 export class BaseEvent {
@@ -14,5 +14,5 @@ export class BaseEvent {
 }
 
 export interface BaseGuildEvent extends BaseEvent {
-    interaction: APIInteraction & Required<Pick<APIInteraction, 'guild' | 'guild_id' | 'guild_locale' | 'member' | 'channel' | 'channel_id'>>
+    interaction: APIGuildInteraction
 }

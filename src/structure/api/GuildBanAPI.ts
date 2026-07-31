@@ -31,7 +31,7 @@ export class GuildBanAPI {
      * @returns Guild ban object {@link Discord.Guild.Ban}
      */
     get() {
-        return this.client.api.get<GuildBanAPI.Get.Result>(`${this.path}`);
+        return this.client.http.get<GuildBanAPI.Get.Result>(`${this.path}`);
     }
 
     /** 
@@ -41,7 +41,7 @@ export class GuildBanAPI {
      * @permissions BAN_MEMBERS
      */
     create(params?: GuildBanAPI.Create.Params, reason?: string) {
-        return this.client.api.put<GuildBanAPI.Create.Result>(`${this.path}`, params, reason);
+        return this.client.http.put<GuildBanAPI.Create.Result>(`${this.path}`, params, reason);
     }
 
     /** 
@@ -50,7 +50,7 @@ export class GuildBanAPI {
      * @permissions BAN_MEMBERS
      */
     remove(reason?: string) {
-        return this.client.api.delete<GuildBanAPI.Remove.Result>(`${this.path}`, undefined, reason);
+        return this.client.http.delete<GuildBanAPI.Remove.Result>(`${this.path}`, undefined, reason);
     }
 }
 
