@@ -1,8 +1,7 @@
-import { type APIMessage, type APIMessageApplicationCommandInteraction, ApplicationCommandType } from "discord-api-types/payloads";
+import { ApplicationCommandType } from "discord-api-types/payloads";
 import type { RESTPostAPIContextMenuApplicationCommandsJSONBody } from "discord-api-types/rest";
-import { CommandBaseEvent } from "../event/CommandBaseEvent";
 import { CommandBuilder } from "./CommandBuilder";
-import type { Discord } from "../..";
+import type { MessageCommandEvent } from "../event/MessageCommandEvent";
 
 export class MessageCommandBuilder extends CommandBuilder {
     listeners = new Set<(i: MessageCommandEvent) => void>();
@@ -20,14 +19,5 @@ export class MessageCommandBuilder extends CommandBuilder {
     oncall(handle: (i: MessageCommandEvent) => void) {
         this.listeners.add(handle);
         return this;
-    }
-}
-
-export class MessageCommandEvent extends CommandBaseEvent {
-    declare interaction: APIMessageApplicationCommandInteraction;
-    message: APIMessage;
-    constructor(client: Discord.Client, interaction: APIMessageApplicationCommandInteraction) {
-        super(client, interaction);
-        this.message = Object.entries(interaction.data.resolved.messages)[0]![1]!
     }
 }
