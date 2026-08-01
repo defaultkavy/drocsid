@@ -29,9 +29,9 @@ export class Client {
     constructor(config: Client.Config) {
         this.client = this;
         this.config = config;
-        this.id = Discord.getClientIdFromToken(config.client_token);
-        this.gateway = new Gateway(this, config.client_token, config.intents ?? []);
-        this.http = new HTTP(this.config.client_token);
+        this.id = Discord.getClientIdFromToken(config.token);
+        this.gateway = new Gateway(this, config.token, config.intents ?? []);
+        this.http = new HTTP(this.config.token);
     }
 
     async connect() {
@@ -143,7 +143,7 @@ export namespace Client {
         client: Discord.Client;
     }
     export interface Config {
-        client_token: string;
+        token: string;
         intents?: (keyof typeof Discord.GatewayIntentBits)[];
     }
 }
