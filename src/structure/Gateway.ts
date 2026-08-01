@@ -1,6 +1,7 @@
 import { GatewayDispatchEvents, type GatewayDispatchPayload, GatewayIntentBits, type GatewayReceivePayload, type GatewaySendPayload } from "discord-api-types/gateway";
 import { Discord } from "../..";
 import { loggerMap } from "../lib/logger";
+import { BaseGatewayEvent } from "../event/BaseGatewayEvent";
 
 const logger = loggerMap.gateway;
 
@@ -12,7 +13,7 @@ export class Gateway {
     private token: string;
     private resume_gateway_url: string | null = null;
     private heartbeat_timer: NodeJS.Timeout | null = null;
-    eventMap = new Map<GatewayDispatchEvents, Set<(data: any) => void>>();
+    eventMap = new Map<GatewayDispatchEvents, Set<(event: BaseGatewayEvent) => void>>();
     client: Discord.Client;
     constructor(client: Discord.Client, token: string, intents: (keyof typeof GatewayIntentBits)[]) {
         this.token = token;
@@ -83,14 +84,14 @@ export class Gateway {
         this.ws?.send(JSON.stringify(payload))
     }
 
-    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: typeof GatewayDispatchEvents[K] }>['d']) => void) {
+    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void) {
         let listenerList = this.eventMap.get(GatewayDispatchEvents[type]) ?? new Set();
         listenerList.add(listener as any);
         this.eventMap.set(GatewayDispatchEvents[type], listenerList);
         return () => this.off(type, listener as any);
     }
 
-    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: typeof GatewayDispatchEvents[K] }>['d']) => void) {
+    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void) {
         this.eventMap.get(GatewayDispatchEvents[type])?.delete(listener as any);
     }
 
@@ -139,7 +140,7 @@ export class Gateway {
             }
         }
         logger.debug(`Event Dispatch: ${e.t}`);
-        this.eventMap.get(e.t)?.forEach(fn => fn(e.d))
+        this.eventMap.get(e.t)?.forEach(fn => fn(new BaseGatewayEvent(this.client, e)))
     }
 }
 

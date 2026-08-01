@@ -5,7 +5,7 @@ import { Gateway } from "./Gateway";
 import { HTTP } from "./HTTP";
 import { ChannelAPI } from "./api/ChannelAPI";
 import { ApplicationAPI } from "./api/ApplicationAPI";
-import type { GatewayDispatchEvents, GatewayReadyDispatchData } from "discord-api-types/gateway";
+import type { GatewayDispatchEvents, GatewayDispatchPayload, GatewayReadyDispatchData } from "discord-api-types/gateway";
 import { InteractionAPI } from "./api/InteractionAPI";
 import { InteractionType, type APIMessageComponentInteraction, type APIMessageComponentInteractionData, type APIModalSubmitInteraction } from "discord-api-types/payloads";
 import { ModalBuilder } from "../builder/ModalBuilder";
@@ -13,6 +13,7 @@ import { ModalComponentEvent } from "../event/ModalComponentEvent";
 import { MessageComponentEvent } from "../event/MessageComponentEvent";
 import { Discord } from "../..";
 import { loggerMap } from "../lib/logger";
+import type { BaseGatewayEvent } from "../event/BaseGatewayEvent";
 
 const logger = loggerMap.client;
 
@@ -33,17 +34,19 @@ export class Client {
 
     async connect() {
         return new Promise<GatewayReadyDispatchData>(resolve => {
-            this.gateway.on('Ready', resolve)
+            this.gateway.on('Ready', e => resolve(e.data))
             this.gateway.connect();
         })
     }
 
-    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: typeof GatewayDispatchEvents[K] }>['d']) => void) {
+    /**
+     * 
+     * @param type - Event type
+     * @param listener
+     * @returns Function of remove listener
+     */
+    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (event: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void) {
         return this.gateway.on(type, listener as any);
-    }
-
-    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: Extract<Gateway.Payload.Dispatch, { t: typeof GatewayDispatchEvents[K] }>['d']) => void) {
-        this.gateway.off(type, listener as any)
     }
 
     /**
@@ -75,13 +78,13 @@ export class Client {
     }
 
     onmodal<M extends ModalBuilder, K extends string | RegExp>(builder: M | ((...args: any[]) => M) | ((...args: any[]) => Promise<M>), custom_id: K, handle: (event: ModalComponentEvent<M, K extends string ? K : ''>) => void) {
-        return this.on('InteractionCreate', i => {
-            if (i.type !== InteractionType.ModalSubmit) return;
-            if (custom_id instanceof RegExp && !custom_id.test(i.data.custom_id)) return;
+        return this.on('InteractionCreate', ({data}) => {
+            if (data.type !== InteractionType.ModalSubmit) return;
+            if (custom_id instanceof RegExp && !custom_id.test(data.data.custom_id)) return;
 
-            const event = new ModalComponentEvent<M>(this, i);
+            const event = new ModalComponentEvent<M>(this, data);
             if (typeof custom_id === 'string') {
-                if (!this.customIdResolver(custom_id, i, event)) return;
+                if (!this.customIdResolver(custom_id, data, event)) return;
             }
             
             handle(event);
@@ -89,14 +92,14 @@ export class Client {
     }
 
     oncomponent<T extends keyof typeof Discord.ComponentType, K extends string | RegExp>(type: T, custom_id: K, handle: (event: MessageComponentEvent<Extract<APIMessageComponentInteractionData, { component_type: typeof Discord.ComponentType[T] }>, K extends string ? K : ''>) => void) {
-        return this.on('InteractionCreate', i => {
-            if (i.type !== InteractionType.MessageComponent) return;
-            if (i.data.component_type !== Discord.ComponentType[type]) return;
-            if (custom_id instanceof RegExp && !custom_id.test(i.data.custom_id)) return;
+        return this.on('InteractionCreate', ({data}) => {
+            if (data.type !== InteractionType.MessageComponent) return;
+            if (data.data.component_type !== Discord.ComponentType[type]) return;
+            if (custom_id instanceof RegExp && !custom_id.test(data.data.custom_id)) return;
 
-            const event = new MessageComponentEvent<any, any>(this, i);
+            const event = new MessageComponentEvent<any, any>(this, data);
             if (typeof custom_id === 'string') {
-                if (!this.customIdResolver(custom_id, i, event)) return;
+                if (!this.customIdResolver(custom_id, data, event)) return;
             }
 
             handle(event);
