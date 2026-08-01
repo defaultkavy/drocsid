@@ -4,7 +4,7 @@ import { BaseEvent } from "./BaseEvent";
 import { loggerMap } from "../lib/logger";
 import type { ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
 
-export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilderOption>, I extends APIApplicationCommandAutocompleteInteraction> extends BaseEvent<I> {
+export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilderOption>, I extends APIApplicationCommandAutocompleteInteraction = APIApplicationCommandAutocompleteInteraction> extends BaseEvent<I> {
     focused: ResolveFocusedOption<Options>;
     data: PartialOptionsValue<Options>;
     options: ResolveAutocompleteOptions<Options>;
