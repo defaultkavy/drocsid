@@ -1,4 +1,4 @@
-import { type APIModalSubmitGuildInteraction, type APIModalSubmitInteraction, ComponentType } from "discord-api-types/payloads";
+import { type APIModalSubmitInteraction, ComponentType } from "discord-api-types/payloads";
 import { ModalBuilder, type MentionableMap } from "../builder/ModalBuilder";
 import type { PathResolver, Prettify } from "../lib/utils";
 import { Discord } from "../..";
@@ -59,9 +59,5 @@ export class ModalComponentEvent<M extends ModalBuilder = ModalBuilder, Path ext
                     }
                 }
             })
-    }
-
-    override inGuild(): this is ModalComponentEvent<M, Path, APIModalSubmitGuildInteraction> {
-        return super.inGuild();
     }
 }

@@ -1,4 +1,4 @@
-import type { APIMessageComponentGuildInteraction, APIMessageComponentInteraction, APIMessageComponentInteractionData } from "discord-api-types/payloads";
+import type { APIMessageComponentInteraction, APIMessageComponentInteractionData } from "discord-api-types/payloads";
 import { Discord } from "../..";
 import type { PathResolver } from "../lib/utils";
 import { ComponentBaseEvent } from "./ComponentBaseEvent";
@@ -13,10 +13,6 @@ export class MessageComponentEvent<
     constructor(client: Discord.Client, interaction: I) {
         super(client, interaction)
         this.data = interaction.data as Data;
-    }
-
-    override inGuild(): this is MessageComponentEvent<Data, Path, APIMessageComponentGuildInteraction> {
-        return super.inGuild();
     }
 }
 

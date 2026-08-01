@@ -1,4 +1,4 @@
-import type { APIMessage, APIMessageApplicationCommandGuildInteraction, APIMessageApplicationCommandInteraction } from "..";
+import type { APIMessage, APIMessageApplicationCommandInteraction } from "..";
 import type { Discord } from "../..";
 import { CommandBaseEvent } from "./CommandBaseEvent";
 
@@ -7,9 +7,5 @@ export class MessageCommandEvent<I extends APIMessageApplicationCommandInteracti
     constructor(client: Discord.Client, interaction: I) {
         super(client, interaction);
         this.message = Object.entries(interaction.data.resolved.messages)[0]![1]!
-    }
-
-    override inGuild(): this is MessageCommandEvent<APIMessageApplicationCommandGuildInteraction> {
-        return super.inGuild();
     }
 }

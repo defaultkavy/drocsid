@@ -1,4 +1,4 @@
-import { type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIChatInputApplicationCommandGuildInteraction, type APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
+import { type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
 import { Discord } from "../..";
 import { CommandBaseEvent } from "./CommandBaseEvent";
 import type { ChatCommandBuilderMentionValue, ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
@@ -10,10 +10,6 @@ export class ChatCommandEvent<Options extends Record<string, ChatCommandBuilderO
         super(client, interaction);
         this.data = this.resolveOptions(options) as any;
         this.options = options as any;
-    }
-
-    override inGuild(): this is ChatCommandEvent<Options, APIChatInputApplicationCommandGuildInteraction> {
-        return super.inGuild();
     }
 
     private resolveOptions(options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined): Record<string, unknown> {

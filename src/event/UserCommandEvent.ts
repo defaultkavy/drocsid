@@ -1,4 +1,4 @@
-import type { APIUser, APIUserApplicationCommandGuildInteraction, APIUserApplicationCommandInteraction } from "discord-api-types/payloads";
+import type { APIUser, APIUserApplicationCommandInteraction } from "discord-api-types/payloads";
 import { Discord } from "../..";
 import { CommandBaseEvent } from "./CommandBaseEvent";
 
@@ -8,8 +8,3 @@ export class UserCommandEvent<I extends APIUserApplicationCommandInteraction = A
         super(client, interaction);
         this.user = Object.entries(interaction.data.resolved.users)[0]![1]!
     }
-
-    override inGuild(): this is UserCommandEvent<APIUserApplicationCommandGuildInteraction> {
-        return super.inGuild();
-    }
-}

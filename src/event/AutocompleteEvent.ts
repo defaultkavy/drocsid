@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, InteractionResponseType, InteractionType, type APIApplicationCommandAutocompleteGuildInteraction, type APIApplicationCommandAutocompleteInteraction, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandOptionChoice, type APIAutocompleteApplicationCommandInteractionData } from "discord-api-types/payloads";
+import { ApplicationCommandOptionType, InteractionResponseType, InteractionType, type APIApplicationCommandAutocompleteInteraction, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandOptionChoice, type APIAutocompleteApplicationCommandInteractionData } from "discord-api-types/payloads";
 import type { Discord } from "../..";
 import { BaseEvent } from "./BaseEvent";
 import { loggerMap } from "../lib/logger";
@@ -15,11 +15,7 @@ export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilder
         this.options = res.options as any;
         this.focused = res.focused as any;
     }
-
-    override inGuild(): this is AutocompleteEvent<Options, APIApplicationCommandAutocompleteGuildInteraction> {
-        return super.inGuild();
-    }
-
+    
     response(choices: APIApplicationCommandOptionChoice[]) {
         this.client.interaction(this.interaction.id, this.interaction.token).callback({
             type: InteractionResponseType.ApplicationCommandAutocompleteResult,
