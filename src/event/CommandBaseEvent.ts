@@ -2,9 +2,8 @@ import type { APIApplicationCommandInteraction } from "discord-api-types/payload
 import { Discord } from "../..";
 import { ReplyBaseEvent } from "./ReplyBaseEvent";
 
-export class CommandBaseEvent extends ReplyBaseEvent {
-    declare interaction: APIApplicationCommandInteraction;
-    constructor(client: Discord.Client, interaction: APIApplicationCommandInteraction) {
+export class CommandBaseEvent<I extends APIApplicationCommandInteraction> extends ReplyBaseEvent<I> {
+    constructor(client: Discord.Client, interaction: I) {
         super(client, interaction)
     }
 }

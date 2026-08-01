@@ -1,20 +1,23 @@
-import { ApplicationCommandOptionType, InteractionResponseType, InteractionType, type APIApplicationCommandAutocompleteInteraction, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandOptionChoice, type APIAutocompleteApplicationCommandInteractionData } from "discord-api-types/payloads";
+import { ApplicationCommandOptionType, InteractionResponseType, InteractionType, type APIApplicationCommandAutocompleteGuildInteraction, type APIApplicationCommandAutocompleteInteraction, type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandOptionChoice, type APIAutocompleteApplicationCommandInteractionData } from "discord-api-types/payloads";
 import type { Discord } from "../..";
 import { BaseEvent } from "./BaseEvent";
 import { loggerMap } from "../lib/logger";
 import type { ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
 
-export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilderOption>> extends BaseEvent {
-    declare interaction: APIApplicationCommandAutocompleteInteraction;
+export class AutocompleteEvent<Options extends Record<string, ChatCommandBuilderOption>, I extends APIApplicationCommandAutocompleteInteraction> extends BaseEvent<I> {
     focused: ResolveFocusedOption<Options>;
     data: PartialOptionsValue<Options>;
     options: ResolveAutocompleteOptions<Options>;
-    constructor(client: Discord.Client, interaction: APIApplicationCommandAutocompleteInteraction) {
+    constructor(client: Discord.Client, interaction: I) {
         super(client, interaction);
         const res = this.resolveAutocomplete(interaction.data);
         this.data = res.data as any
         this.options = res.options as any;
         this.focused = res.focused as any;
+    }
+
+    override inGuild(): this is AutocompleteEvent<Options, APIApplicationCommandAutocompleteGuildInteraction> {
+        return super.inGuild();
     }
 
     response(choices: APIApplicationCommandOptionChoice[]) {

@@ -1,16 +1,19 @@
-import { type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
+import { type APIApplicationCommandInteractionDataBasicOption, type APIApplicationCommandInteractionDataOption, type APIChatInputApplicationCommandGuildInteraction, type APIChatInputApplicationCommandInteraction, ApplicationCommandOptionType, InteractionType } from "discord-api-types/payloads";
 import { Discord } from "../..";
 import { CommandBaseEvent } from "./CommandBaseEvent";
 import type { ChatCommandBuilderMentionValue, ChatCommandBuilderOption } from "../builder/ChatCommandBuilder";
 
-export class ChatCommandEvent<Options extends Record<string, ChatCommandBuilderOption> = {}> extends CommandBaseEvent {
+export class ChatCommandEvent<Options extends Record<string, ChatCommandBuilderOption> = {}, I extends APIChatInputApplicationCommandInteraction = APIChatInputApplicationCommandInteraction> extends CommandBaseEvent<I> {
     data: ResolveChatCommandBuilderOptionsValue<Options>;
     options: ResolveChatCommandBuilderOptions<Options>;
-    declare interaction: APIChatInputApplicationCommandInteraction;
-    constructor(client: Discord.Client, interaction: APIChatInputApplicationCommandInteraction, options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined) {
+    constructor(client: Discord.Client, interaction: I, options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined) {
         super(client, interaction);
         this.data = this.resolveOptions(options) as any;
         this.options = options as any;
+    }
+
+    override inGuild(): this is ChatCommandEvent<Options, APIChatInputApplicationCommandGuildInteraction> {
+        return super.inGuild();
     }
 
     private resolveOptions(options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined): Record<string, unknown> {

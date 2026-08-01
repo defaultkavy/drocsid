@@ -5,8 +5,8 @@ import { MessageBuilder } from "../builder/MessageBuilder";
 import type { ModalBuilder } from "../builder/ModalBuilder";
 import type { FileResolver } from "../structure/HTTP";
 
-export class ReplyBaseEvent extends BaseEvent {
-    constructor(client: Discord.Client, interaction: APIInteraction) {
+export class ReplyBaseEvent<I extends APIInteraction> extends BaseEvent<I> {
+    constructor(client: Discord.Client, interaction: I) {
         super(client, interaction)
     }
     

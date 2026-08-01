@@ -20,7 +20,6 @@ export {
 
 export {
     BaseEvent as Base,
-    type BaseGuildEvent as BaseGuild
 } from './BaseEvent';
 
 export {

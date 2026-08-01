@@ -3,8 +3,8 @@ import type { Discord } from "../..";
 import { MessageBuilder } from "../builder/MessageBuilder";
 import { ReplyBaseEvent } from "./ReplyBaseEvent";
 
-export class ComponentBaseEvent extends ReplyBaseEvent {
-    constructor(client: Discord.Client, interaction: APIMessageComponentInteraction | APIModalSubmitInteraction) {
+export class ComponentBaseEvent<I extends APIMessageComponentInteraction | APIModalSubmitInteraction> extends ReplyBaseEvent<I> {
+    constructor(client: Discord.Client, interaction: I) {
         super(client, interaction);
     }
 

@@ -1,16 +1,15 @@
-import { type APIModalSubmitInteraction, ComponentType } from "discord-api-types/payloads";
+import { type APIModalSubmitGuildInteraction, type APIModalSubmitInteraction, ComponentType } from "discord-api-types/payloads";
 import { ModalBuilder, type MentionableMap } from "../builder/ModalBuilder";
 import type { PathResolver, Prettify } from "../lib/utils";
 import { Discord } from "../..";
 import { ComponentBaseEvent } from "./ComponentBaseEvent";
 
-export class ModalComponentEvent<M extends ModalBuilder = ModalBuilder, Path extends string = any> extends ComponentBaseEvent { 
-    declare interaction: APIModalSubmitInteraction
+export class ModalComponentEvent<M extends ModalBuilder = ModalBuilder, Path extends string = any, I extends APIModalSubmitInteraction = APIModalSubmitInteraction> extends ComponentBaseEvent<I> { 
     value: Map<string, string | boolean | null> = new Map();
     values: Map<string, string[]> = new Map();
     data: Prettify<M['components']> = {} as any;
     params: PathResolver<Path, string> = {} as any;
-    constructor(client: Discord.Client, interaction: APIModalSubmitInteraction) {
+    constructor(client: Discord.Client, interaction: I) {
         super(client, interaction);
         interaction.data.components
             .filter(component => component.type === ComponentType.Label)
@@ -60,5 +59,9 @@ export class ModalComponentEvent<M extends ModalBuilder = ModalBuilder, Path ext
                     }
                 }
             })
+    }
+
+    override inGuild(): this is ModalComponentEvent<M, Path, APIModalSubmitGuildInteraction> {
+        return super.inGuild();
     }
 }
