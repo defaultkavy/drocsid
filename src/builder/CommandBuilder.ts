@@ -4,8 +4,8 @@ import { Locale, type RESTPostAPIBaseApplicationCommandsJSONBody } from "discord
 export abstract class CommandBuilder {
     abstract config: RESTPostAPIBaseApplicationCommandsJSONBody;
 
-    contexts(contexts: InteractionContextType[]) {
-        this.config.contexts = contexts;
+    contexts(...contexts: (keyof typeof InteractionContextType)[]) {
+        this.config.contexts = contexts.map(ctx => InteractionContextType[ctx]);
         return this;
     }
 
