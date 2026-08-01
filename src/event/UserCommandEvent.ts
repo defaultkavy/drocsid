@@ -8,3 +8,4 @@ export class UserCommandEvent<I extends APIUserApplicationCommandInteraction = A
         super(client, interaction);
         this.user = Object.entries(interaction.data.resolved.users)[0]![1]!
     }
+}
