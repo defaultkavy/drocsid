@@ -22,7 +22,7 @@ export class GuildCommandAPI extends CommandAPI {
              * @permissions OAuth2 Bearer token with `applications.commands.permissions.update` scope
              */
             get: () => {
-                return this.client.api.get<CommandAPI.Permissions.Get.Result>(`${this.path}/permissions`);
+                return this.client.http.get<CommandAPI.Permissions.Get.Result>(`${this.path}/permissions`);
             },
 
             /**
@@ -30,7 +30,7 @@ export class GuildCommandAPI extends CommandAPI {
              * @permissions OAuth2 Bearer token with `applications.commands.permissions.update` scope
              */
             update: (params: CommandAPI.Permissions.Update.Params) => {
-                return this.client.api.put<CommandAPI.Permissions.Update.Result>(`${this.path}/permissions`, params);
+                return this.client.http.put<CommandAPI.Permissions.Update.Result>(`${this.path}/permissions`, params);
             }
         };
     }

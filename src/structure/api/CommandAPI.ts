@@ -9,7 +9,7 @@ import type {
     RESTPutAPIApplicationCommandPermissionsJSONBody,
     RESTPutAPIApplicationCommandPermissionsResult,
 } from "discord-api-types/rest";
-import type { Discord } from "../Discord";
+import type { Discord } from "../../..";
 
 export class CommandAPI {
     client: Discord.Client;
@@ -30,21 +30,21 @@ export class CommandAPI {
      * Returns the command object.
      */
     get(): Promise<CommandAPI.Get.Result | CommandAPI.Guild.Get.Result> {
-        return this.client.api.get<CommandAPI.Get.Result | CommandAPI.Guild.Get.Result>(`${this.path}`);
+        return this.client.http.get<CommandAPI.Get.Result | CommandAPI.Guild.Get.Result>(`${this.path}`);
     }
 
     /**
      * Edit the command.
      */
     modify(params: CommandAPI.Modify.Params | CommandAPI.Guild.Modify.Params) {
-        return this.client.api.patch<CommandAPI.Modify.Result | CommandAPI.Guild.Modify.Result>(`${this.path}`, params);
+        return this.client.http.patch<CommandAPI.Modify.Result | CommandAPI.Guild.Modify.Result>(`${this.path}`, params);
     }
 
     /**
      * Delete the command. Returns 204 No Content on success.
      */
     delete() {
-        return this.client.api.delete<CommandAPI.Delete.Result>(`${this.path}`);
+        return this.client.http.delete<CommandAPI.Delete.Result>(`${this.path}`);
     }
 }
 
