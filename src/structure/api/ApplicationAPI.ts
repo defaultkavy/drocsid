@@ -58,7 +58,7 @@ export class ApplicationAPI {
              */
             list: () => {
                 return this.client.http.get<ApplicationAPI.RoleConnectionMetadata.List.Result>(
-                    `/applications/${this.client.config.client_id}/role-connections/metadata`
+                    `${this.path}/role-connections/metadata`
                 );
             },
 
@@ -68,7 +68,7 @@ export class ApplicationAPI {
              */
             update: (params: ApplicationAPI.RoleConnectionMetadata.Update.Params) => {
                 return this.client.http.put<ApplicationAPI.RoleConnectionMetadata.Update.Result>(
-                    `/applications/${this.client.config.client_id}/role-connections/metadata`,
+                    `${this.path}/role-connections/metadata`,
                     params
                 );
             }
@@ -80,7 +80,7 @@ export class ApplicationAPI {
      * @param command_id
      */
     command(command_id: string) {
-        return new CommandAPI(this.client, this.client.config.client_id, command_id);
+        return new CommandAPI(this.client, this.application_id, command_id);
     }
 
 
