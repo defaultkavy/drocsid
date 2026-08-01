@@ -1,4 +1,4 @@
-import { type APIGuildInteraction, type APIInteraction } from "discord-api-types/payloads";
+import { type APIDMInteraction, type APIGuildInteraction, type APIInteraction } from "discord-api-types/payloads";
 import type { Discord } from "../..";
 
 export class BaseEvent<I extends APIInteraction> {
@@ -11,5 +11,9 @@ export class BaseEvent<I extends APIInteraction> {
 
     inGuild(): this is BaseEvent<APIGuildInteraction> {
         return !!this.interaction.guild
+    }
+
+    inDM(): this is BaseEvent<APIDMInteraction> {
+        return !!this.interaction.user
     }
 }
