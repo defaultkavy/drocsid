@@ -31,7 +31,7 @@ export class InteractionAPI {
     }
 
     protected get webhookPath(): string {
-        return `/webhooks/${this.client.config.client_id}/${this.interaction_token}`;
+        return `/webhooks/${this.client.id}/${this.interaction_token}`;
     }
 
     /**

@@ -25,9 +25,11 @@ export class Client {
     gateway: Gateway;
     http: HTTP;
     client: this;
+    id: string;
     constructor(config: Client.Config) {
         this.client = this;
         this.config = config;
+        this.id = Discord.getClientIdFromToken(config.client_token);
         this.gateway = new Gateway(this, config.client_token, config.intents ?? []);
         this.http = new HTTP(this.config.client_token);
     }
@@ -73,7 +75,7 @@ export class Client {
         return new InteractionAPI(this, interaction_id, token);
     }
 
-    application(application_id: string = this.client.config.client_id) {
+    application(application_id: string = this.id) {
         return new ApplicationAPI(this, application_id);
     }
 
@@ -141,7 +143,6 @@ export namespace Client {
         client: Discord.Client;
     }
     export interface Config {
-        client_id: string;
         client_token: string;
         intents?: (keyof typeof Discord.GatewayIntentBits)[];
     }

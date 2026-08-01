@@ -114,3 +114,7 @@ const GUILD_CHANNEL_TYPES = new Set<ChannelType>([
 export function isGuildChannel(channel: APIBasePartialChannel): channel is APIGuildChannel {
     return GUILD_CHANNEL_TYPES.has(channel.type)
 }
+
+export function getClientIdFromToken(token: string) {
+    return Buffer.from(token.split('.')[0]!, 'base64').toString('utf-8');
+}
