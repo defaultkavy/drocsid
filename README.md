@@ -12,7 +12,6 @@ import { Discord } from "drocsid"
 
 const client = new Discord.Client({
     client_token: CLIENT_TOKEN,
-    client_id: CLIENT_ID,
     intents: ['GuildMessage', 'Guilds', 'MessageContent']
 })
 
@@ -29,8 +28,8 @@ await client.guild('GUILD_ID').member('USER_ID').remove();
 
 // Gateway Events
 client.connect();
-client.on('CreateMessage', message => {
-    console.log(message.content)
+client.on('CreateMessage', event => {
+    console.log(event.message.content)
 })
 ```
 

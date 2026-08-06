@@ -8,8 +8,13 @@ export * as Event from './event';
 export * as Builder from './builder';
 export { type MentionableMap } from './builder/ModalBuilder'
 export * as API from './structure/api';
-export { Client } from './structure/Client';
-export { Gateway } from './structure/Gateway';
+export { 
+    Client,
+    type ModalBuilderResolver,
+    type ModalEventListener,
+    type ComponentEventListener
+} from './structure/Client';
+export { Gateway, type GatewayEventListener } from './structure/Gateway';
 export { Guild } from './structure/Guild';
 export { HTTP } from './structure/HTTP';
 
@@ -34,7 +39,7 @@ export function avatarURL({ user, member, size }: { user: Pick<APIUser, 'discrim
     return `https://cdn.discordapp.com/avatars/${user.id}/${avatarId}.${avatarId.startsWith('a_') ? 'gif' : 'png'}?size=${size ?? 512}`
 }
 
-export function hasPermission(app_permissions: string | bigint, ...permissions: PermissionFlagsBitsName[]) {
+export function hasPermissions(app_permissions: string | bigint, ...permissions: PermissionFlagsBitsName[]) {
     app_permissions = BigInt(app_permissions);
     if ((app_permissions & PermissionFlagsBits.Administrator) !== 0n) return true; 
     return permissions.every(permission => (app_permissions & PermissionFlagsBits[permission]) !== 0n)
@@ -63,7 +68,7 @@ export async function getUserPermissions(client: Client, { guild_id, user_id, ch
         permissions |= BigInt(role.permissions);
     }
 
-    if (hasPermission(permissions, 'Administrator')) return AllPermissionsFlagBits;
+    if (hasPermissions(permissions, 'Administrator')) return AllPermissionsFlagBits;
     if (!channel_id) return permissions;
 
     const overwrites = await client.channel(channel_id).get().then(channel => {

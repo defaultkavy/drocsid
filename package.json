@@ -2,7 +2,7 @@
   "name": "drocsid",
   "description": "Drocsid is a type-safe, memory-optimized, TypeScript first library for interacting with the Discord API",
   "license": "MIT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "defaultkavy",
     "email": "defaultkavy@gmail.com",
@@ -18,11 +18,11 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^6"
+    "typescript": "^6",
+    "@defaultkavy/logger": "0.0.1"
   },
   "dependencies": {
-    "discord-api-types": "^0.38.49",
-    "@defaultkavy/logger": "0.0.1"
+    "discord-api-types": "^0.38.49"
   },
   "files": [
     "index.ts",

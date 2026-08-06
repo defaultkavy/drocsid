@@ -1,9 +1,31 @@
 # Changelog
 
-## 0.2.0
-
+## 0.3.0
 ### Changes
+#### `Discord`
+- 新增 `ModalBuilderResolver`、`ModalEventListener` 和 `ComponentEventListener` 的导出。
+- 新增 `getClientIdFromToken()`、`hasPermissions()`、`getUserPermissions()` 工具函数。
 
+#### `Discord.Client`
+- 修复 `custom_id` 解析可选参数时使用错误的键名导致无法找到对应片段的值。
+- 移除新建配置中需要的 `client_id`，新建 `Client` 时会自动从 `token` 中提取 `client_id`。
+- 新增 `id` 只读属性，可以直接获取 `client_id`。
+- 更改 `on()` 事件监听函数所提供的参数，从原本事件类型所对应的数据更改为 `GatewayEvent`。
+- 移除 `off()`，如果需要移除事件监听，可以直接调用 `on()` 所返回的函数。
+- 重命名 HTTP 请求入口 `api` 改为 `http`。
+
+#### `Discord.Event`
+- 新增 `MessageCommand` 和 `Gateway` 的导出。
+
+#### `Discord.Event.Base`
+- 优化 `inGuild()` 类型解析的性能。
+- 新增 `inDM()` 类型解析函数。
+
+#### `Discord.Builder.CommandBuilder`
+- 优化 `contexts()` 参数的输入方式，使用文本输入替代 Enum。
+
+## 0.2.0
+### Changes
 #### `Discord`
 - 新增用户头像URL解析工具 `defaultAvatarURL()` 和 `avatarURL()`。
 - 新增 `HTTP` 导出。

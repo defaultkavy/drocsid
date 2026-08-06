@@ -84,14 +84,14 @@ export class Gateway {
         this.ws?.send(JSON.stringify(payload))
     }
 
-    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void) {
+    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: GatewayEventListener<K>) {
         let listenerList = this.eventMap.get(GatewayDispatchEvents[type]) ?? new Set();
         listenerList.add(listener as any);
         this.eventMap.set(GatewayDispatchEvents[type], listenerList);
         return () => this.off(type, listener as any);
     }
 
-    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (data: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void) {
+    off<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: GatewayEventListener<K>) {
         this.eventMap.get(GatewayDispatchEvents[type])?.delete(listener as any);
     }
 
@@ -143,6 +143,8 @@ export class Gateway {
         this.eventMap.get(e.t)?.forEach(fn => fn(new BaseGatewayEvent(this.client, e)))
     }
 }
+
+export type GatewayEventListener<K extends keyof typeof GatewayDispatchEvents = any> = (event: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void
 
 export namespace Gateway {
     export import Events = GatewayDispatchEvents;

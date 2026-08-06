@@ -29,3 +29,11 @@ export {
 export {
     ReplyBaseEvent as ReplyBase
 } from './ReplyBaseEvent';
+
+export {
+    MessageCommandEvent as MessageCommand
+} from './MessageCommandEvent'
+
+export {
+    BaseGatewayEvent as Gateway
+} from './BaseGatewayEvent'

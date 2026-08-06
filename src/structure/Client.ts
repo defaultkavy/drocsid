@@ -1,11 +1,11 @@
 import { ClientUserAPI } from "./api/ClientUserAPI";
 import { GuildAPI } from "./api/GuildAPI";
 import { UserAPI } from "./api/UserAPI";
-import { Gateway } from "./Gateway";
+import { Gateway, type GatewayEventListener } from "./Gateway";
 import { HTTP } from "./HTTP";
 import { ChannelAPI } from "./api/ChannelAPI";
 import { ApplicationAPI } from "./api/ApplicationAPI";
-import type { GatewayDispatchEvents, GatewayDispatchPayload, GatewayReadyDispatchData } from "discord-api-types/gateway";
+import type { GatewayDispatchEvents, GatewayReadyDispatchData } from "discord-api-types/gateway";
 import { InteractionAPI } from "./api/InteractionAPI";
 import { InteractionType, type APIMessageComponentInteraction, type APIMessageComponentInteractionData, type APIModalSubmitInteraction } from "discord-api-types/payloads";
 import { ModalBuilder } from "../builder/ModalBuilder";
@@ -13,7 +13,6 @@ import { ModalComponentEvent } from "../event/ModalComponentEvent";
 import { MessageComponentEvent } from "../event/MessageComponentEvent";
 import { Discord } from "../..";
 import { loggerMap } from "../lib/logger";
-import type { BaseGatewayEvent } from "../event/BaseGatewayEvent";
 
 const logger = loggerMap.client;
 
@@ -25,7 +24,7 @@ export class Client {
     gateway: Gateway;
     http: HTTP;
     client: this;
-    id: string;
+    readonly id: string;
     constructor(config: Client.Config) {
         this.client = this;
         this.config = config;
@@ -47,7 +46,7 @@ export class Client {
      * @param listener
      * @returns Function of remove listener
      */
-    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: (event: BaseGatewayEvent<GatewayDispatchPayload & { t: typeof GatewayDispatchEvents[K] }>) => void) {
+    on<K extends keyof typeof GatewayDispatchEvents>(type: K, listener: GatewayEventListener<K>) {
         return this.gateway.on(type, listener as any);
     }
 
@@ -79,7 +78,7 @@ export class Client {
         return new ApplicationAPI(this, application_id);
     }
 
-    onmodal<M extends ModalBuilder, K extends string | RegExp>(builder: M | ((...args: any[]) => M) | ((...args: any[]) => Promise<M>), custom_id: K, handle: (event: ModalComponentEvent<M, K extends string ? K : ''>) => void) {
+    onmodal<M extends ModalBuilder, K extends string | RegExp>(builder: ModalBuilderResolver<M> | undefined, custom_id: K, handle: ModalEventListener<M, K>) {
         return this.on('InteractionCreate', ({data}) => {
             if (data.type !== InteractionType.ModalSubmit) return;
             if (custom_id instanceof RegExp && !custom_id.test(data.data.custom_id)) return;
@@ -93,7 +92,7 @@ export class Client {
         })
     }
 
-    oncomponent<T extends keyof typeof Discord.ComponentType, K extends string | RegExp>(type: T, custom_id: K, handle: (event: MessageComponentEvent<Extract<APIMessageComponentInteractionData, { component_type: typeof Discord.ComponentType[T] }>, K extends string ? K : ''>) => void) {
+    oncomponent<T extends keyof typeof Discord.ComponentType, K extends string | RegExp>(type: T, custom_id: K, handle: ComponentEventListener<T, K>) {
         return this.on('InteractionCreate', ({data}) => {
             if (data.type !== InteractionType.MessageComponent) return;
             if (data.data.component_type !== Discord.ComponentType[type]) return;
@@ -110,7 +109,7 @@ export class Client {
 
     customIdResolver(custom_id: string, i: APIMessageComponentInteraction | APIModalSubmitInteraction, event: MessageComponentEvent | ModalComponentEvent) {
         const log = logger.prefix('customIdResolver()')
-        log.debug(`resolving custom_id (${custom_id})`)
+        log.debug(`resolving custom_id (${custom_id})`, i.data.custom_id)
         const resolveParts = custom_id.split('/');
         const requestParts = i.data.custom_id.split('/');
         for (let i = 0; i < resolveParts.length; i++) {
@@ -122,7 +121,7 @@ export class Client {
                 const paramName = matched[1]!;
                 if (!paramName.endsWith('?') && !reqPart) return false;
                 log.debug(`params matched (${matched[1]}: ${reqPart})`)
-                Object.assign(event.params, {[matched[1]!]: reqPart});
+                Object.assign(event.params, {[matched[1]!.replace(/\?$/, '')]: reqPart});
             }
             else if (reqPart !== resPart) return false;
         }
@@ -134,6 +133,11 @@ export class Client {
         return new ClientUserAPI(this);
     }
 }
+
+export type ModalEventListener<M extends ModalBuilder = any, K extends string | RegExp = any> = (event: ModalComponentEvent<M, K extends string ? K : ''>) => void;
+export type ModalBuilderResolver<M> = M | ((...args: any[]) => M) | ((...args: any[]) => Promise<M>);
+
+export type ComponentEventListener<T extends keyof typeof Discord.ComponentType = any, K extends string | RegExp = any> = (event: MessageComponentEvent<Extract<APIMessageComponentInteractionData, { component_type: typeof Discord.ComponentType[T] }>, K extends string ? K : ''>) => void;
 
 export namespace Client {
     export namespace User {
