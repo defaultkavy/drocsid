@@ -16,7 +16,7 @@ export class GuildMemberAPI {
 
     /**
      * Returns a guild member object for the specified user.
-     * @returns Guild member object {@link Discord.Guild.Member}
+      * @returns Guild member object {@link Discord.Guild.Member.API.Get.Result}
      */
     get() {
         return this.client.http.get<Discord.Guild.Member.API.Get.Result>(`${this.path}`)
@@ -26,7 +26,7 @@ export class GuildMemberAPI {
      * Modify attributes of a guild member. Returns a 200 OK with the guild member as the body. 
      * If the channel_id is set to null, * this will force the target user to be disconnected from voice.
      * @event GUILD_MEMBER_UPDATE
-     * @returns Guild member object {@link Discord.Guild.Member}
+      * @returns Updated guild member object {@link Discord.Guild.Member.API.Modify.Result}
      */
     modify(params: Discord.Guild.Member.API.Modify.Params) {
         return this.client.http.patch<Discord.Guild.Member.API.Modify.Result>(`${this.path}`, params)
@@ -48,7 +48,7 @@ export class GuildMemberAPI {
      * For guilds with Membership Screening enabled, this endpoint will default to adding new members as pending in the guild member object. 
      * Members that are pending will have to complete membership screening before they become full members that can talk.
      * @event GUILD_MEMBER_ADD
-     * @returns Guild member object {@link Discord.Guild.Member}
+    * @returns Added guild member result {@link Discord.Guild.Member.API.Add.Result}
      */
     add(params: Discord.Guild.Member.API.Add.Params) {
         return this.client.http.put<Discord.Guild.Member.API.Add.Result>(`${this.path}`, params)

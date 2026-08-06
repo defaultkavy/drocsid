@@ -28,6 +28,7 @@ export class CommandAPI {
 
     /**
      * Returns the command object.
+    * @returns Command object {@link Discord.APIApplicationCommand} or {@link Omit<Discord.APIApplicationCommand, 'dm_permission'>}
      */
     get(): Promise<CommandAPI.Get.Result | CommandAPI.Guild.Get.Result> {
         return this.client.http.get<CommandAPI.Get.Result | CommandAPI.Guild.Get.Result>(`${this.path}`);
@@ -35,6 +36,7 @@ export class CommandAPI {
 
     /**
      * Edit the command.
+    * @returns Updated command object {@link Discord.APIApplicationCommand} or {@link Omit<Discord.APIApplicationCommand, 'dm_permission'>}
      */
     modify(params: CommandAPI.Modify.Params | CommandAPI.Guild.Modify.Params) {
         return this.client.http.patch<CommandAPI.Modify.Result | CommandAPI.Guild.Modify.Result>(`${this.path}`, params);

@@ -38,6 +38,7 @@ export class ApplicationAPI {
 
     /**
      * Returns the application object associated with the requesting bot user.
+    * @returns Application object {@link Discord.APIApplication}
      */
     get() {
         return this.client.http.get<ApplicationAPI.Get.Result>(this.path);
@@ -45,7 +46,7 @@ export class ApplicationAPI {
 
     /**
      * Edit properties of the application associated with the requesting bot user.
-     * @returns Updated application object
+    * @returns Updated application object {@link Discord.APIApplication}
      */
     modify(params: ApplicationAPI.Modify.Params) {
         return this.client.http.patch<ApplicationAPI.Modify.Result>(this.path, params);
@@ -55,6 +56,7 @@ export class ApplicationAPI {
         return {
             /**
              * Returns a list of application role connection metadata objects for the given application.
+             * @returns List of role connection metadata objects {@link Discord.APIApplicationRoleConnectionMetadata[]}
              */
             list: () => {
                 return this.client.http.get<ApplicationAPI.RoleConnectionMetadata.List.Result>(
@@ -65,6 +67,7 @@ export class ApplicationAPI {
             /**
              * Updates and returns a list of application role connection metadata objects for the given application.
              * @permissions Bot must have the `role_connections.write` OAuth2 scope
+             * @returns Updated list of role connection metadata objects {@link Discord.APIApplicationRoleConnectionMetadata[]}
              */
             update: (params: ApplicationAPI.RoleConnectionMetadata.Update.Params) => {
                 return this.client.http.put<ApplicationAPI.RoleConnectionMetadata.Update.Result>(
@@ -89,6 +92,7 @@ export class ApplicationAPI {
         return {
             /**
              * Fetch all global commands for this application.
+             * @returns List of global application commands {@link Discord.APIApplicationCommand[]}
              */
             list: (query?: ApplicationAPI.Command.List.Query) => {
                 return this.client.http.get<ApplicationAPI.Command.List.Result>(
@@ -99,6 +103,7 @@ export class ApplicationAPI {
             /**
              * Create a new global command.
              * @event Commands may take up to 1 hour to propagate globally.
+             * @returns Created global command object {@link Discord.APIApplicationCommand}
              */
             create: (params: ApplicationAPI.Command.Create.Params) => {
                 return this.client.http.post<ApplicationAPI.Command.Create.Result>(
@@ -108,6 +113,7 @@ export class ApplicationAPI {
 
             /**
              * Bulk overwrite all global commands. Replaces the full list.
+             * @returns Full list of global commands after overwrite {@link Discord.APIApplicationCommand[]}
              */
             bulkOverwrite: (params: ApplicationAPI.Command.BulkOverwrite.Params) => {
                 return this.client.http.put<ApplicationAPI.Command.BulkOverwrite.Result>(
@@ -122,6 +128,7 @@ export class ApplicationAPI {
             commands: {
                 /**
                  * Fetch all guild commands for this application.
+                 * @returns List of guild application commands {@link Omit<Discord.APIApplicationCommand, 'dm_permission'>[]}
                  */
                 list: (query?: ApplicationAPI.Command.Guild.List.Query) => {
                     return this.client.http.get<ApplicationAPI.Command.Guild.List.Result>(
@@ -131,6 +138,7 @@ export class ApplicationAPI {
 
                 /**
                  * Create a new guild command.
+                 * @returns Created guild command object {@link Omit<Discord.APIApplicationCommand, 'dm_permission'>}
                  */
                 create: (params: ApplicationAPI.Command.Guild.Create.Params) => {
                     return this.client.http.post<ApplicationAPI.Command.Guild.Create.Result>(
@@ -140,6 +148,7 @@ export class ApplicationAPI {
 
                 /**
                  * Bulk overwrite all guild commands. Replaces the full list.
+                 * @returns Full list of guild commands after overwrite {@link Omit<Discord.APIApplicationCommand, 'dm_permission'>[]}
                  */
                 bulkOverwrite: (params: ApplicationAPI.Command.Guild.BulkOverwrite.Params) => {
                     return this.client.http.put<ApplicationAPI.Command.Guild.BulkOverwrite.Result>(
@@ -149,6 +158,7 @@ export class ApplicationAPI {
 
                 /**
                  * Returns all command permissions for all commands in this guild.
+                 * @returns List of guild command permissions {@link Discord.APIGuildApplicationCommandPermissions[]}
                  */
                 permissions: () => {
                     return this.client.http.get<ApplicationAPI.Command.Guild.Permissions.List.Result>(

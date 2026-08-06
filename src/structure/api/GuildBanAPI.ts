@@ -28,7 +28,7 @@ export class GuildBanAPI {
     /** 
      * Returns a ban object for the given user or a 404 not found if the ban cannot be found.
      * @permissions BAN_MEMBERS
-     * @returns Guild ban object {@link Discord.Guild.Ban}
+     * @returns Guild ban object {@link Discord.APIBan}
      */
     get() {
         return this.client.http.get<GuildBanAPI.Get.Result>(`${this.path}`);

@@ -16,7 +16,7 @@ export class GuildRoleAPI {
 
     /** 
      * Returns a role object for the specified role.
-     * @returns Guild role object {@link Discord.Guild.Role}
+      * @returns Guild role object {@link Discord.Guild.Role.API.Get.Result}
      */
     get() {
         return this.client.http.get<Discord.Guild.Role.API.Get.Result>(`${this.path}`)
@@ -26,7 +26,7 @@ export class GuildRoleAPI {
      * Modify a guild role. Returns the updated role on success.
      * @event GUILD_ROLE_UPDATE
      * @permissions MANAGE_ROLES
-     * @returns List of guild role object {@link Discord.Guild.Role}
+     * @returns Updated guild role object {@link Discord.Guild.Role.API.Modify.Result}
      */
     modify(params: Discord.Guild.Role.API.Modify.Params, reason?: string) {
         return this.client.http.patch<Discord.Guild.Role.API.Modify.Params>(`${this.path}`, params, reason)

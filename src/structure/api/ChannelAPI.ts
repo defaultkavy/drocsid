@@ -33,6 +33,7 @@ export class ChannelAPI {
     /**
      * Returns a channel object for the given id.
      * @permissions VIEW_CHANNEL (guild channel)
+    * @returns Channel object {@link Discord.APIChannel}
      */
     get() {
         return this.client.http.get<ChannelAPI.Get.Result>(`${this.path}`);
@@ -42,6 +43,7 @@ export class ChannelAPI {
      * Update a channel's settings.
      * @event CHANNEL_UPDATE
      * @permissions MANAGE_CHANNELS
+    * @returns Updated channel object {@link Discord.APIChannel}
      */
     modify(params: ChannelAPI.Modify.Params, reason?: string) {
         return this.client.http.patch<ChannelAPI.Modify.Result>(`${this.path}`, params, reason);
@@ -51,6 +53,7 @@ export class ChannelAPI {
      * Delete or close a channel.
      * @event CHANNEL_DELETE
      * @permissions MANAGE_CHANNELS (guild channel)
+    * @returns Deleted channel object {@link Discord.APIChannel}
      */
     delete(reason?: string) {
         return this.client.http.delete<ChannelAPI.Delete.Result>(`${this.path}`, undefined, reason);
@@ -69,6 +72,7 @@ export class ChannelAPI {
             /**
              * Returns the messages for a channel.
              * @permissions VIEW_CHANNEL & READ_MESSAGE_HISTORY
+             * @returns List of message objects {@link Discord.APIMessage[]}
              */
             list: (query?: ChannelAPI.Message.List.Query) => {
                 return this.client.http.get<ChannelAPI.Message.List.Result>(`${this.path}/messages${this.client.http.query(query)}`);
@@ -78,6 +82,7 @@ export class ChannelAPI {
              * Post a message to the channel.
              * @event MESSAGE_CREATE
              * @permissions SEND_MESSAGES (or SEND_MESSAGES_IN_THREADS for threads)
+             * @returns Created message object {@link Discord.APIMessage}
              */
             create: (params: ChannelAPI.Message.Create.Params, files?: FileResolver[]) => {
                 return this.client.http.fetch<ChannelAPI.Message.Create.Result>('POST', `${this.path}/messages`, params, files);
@@ -86,6 +91,7 @@ export class ChannelAPI {
             /**
              * Delete multiple messages in a single request.
              * @permissions MANAGE_MESSAGES
+             * @returns Empty response (204 No Content)
              */
             bulkDelete: (params: ChannelAPI.Message.BulkDelete.Params) => {
                 return this.client.http.post<ChannelAPI.Message.BulkDelete.Result>(`${this.path}/messages/bulk-delete`, params);
@@ -98,6 +104,7 @@ export class ChannelAPI {
             /**
              * Returns paginated pinned messages for this channel.
              * @permissions VIEW_CHANNEL & READ_MESSAGE_HISTORY
+             * @returns Paginated pinned messages object with `items` as {@link Discord.APIMessagePin[]} and `has_more` flag
              */
             list: (query?: ChannelAPI.Pin.List.Query) => {
                 return this.client.http.get<ChannelAPI.Pin.List.Result>(`${this.path}/messages/pins${this.client.http.query(query)}`);
@@ -109,6 +116,7 @@ export class ChannelAPI {
      * Start a thread in this channel without a message.
      * @event THREAD_CREATE
      * @permissions CREATE_PUBLIC_THREADS or CREATE_PRIVATE_THREADS
+    * @returns Created thread channel object {@link Discord.APIAnnouncementThreadChannel} or {@link Discord.APIPrivateThreadChannel} or {@link Discord.APIPublicThreadChannel}
      */
     startThread(params: ChannelAPI.StartThread.Params, reason?: string) {
         return this.client.http.post<ChannelAPI.StartThread.Result>(`${this.path}/threads`, params, reason);
@@ -117,6 +125,7 @@ export class ChannelAPI {
     /**
      * Trigger the typing indicator in this channel.
      * @permissions SEND_MESSAGES (or SEND_MESSAGES_IN_THREADS for threads)
+    * @returns Empty response (204 No Content)
      */
     triggerTyping() {
         return this.client.http.post<ChannelAPI.TriggerTyping.Result>(`${this.path}/typing`, undefined);

@@ -52,6 +52,7 @@ export class MessageReactionAPI {
     /**
      * Get users who added this reaction.
      * @permissions READ_MESSAGE_HISTORY
+     * @returns List of users who reacted {@link Discord.APIUser[]}
      */
     getUsers(query?: MessageReactionAPI.GetUsers.Query) {
         return this.client.http.get<MessageReactionAPI.GetUsers.Result>(`${this.path}${this.client.http.query(query)}`);

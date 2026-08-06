@@ -37,6 +37,7 @@ export class InteractionAPI {
     /**
      * Create an interaction response.
      * @event Cannot be followed by more than one interaction response or followup message within a 5 minute window.
+    * @returns Interaction callback response object containing interaction metadata and optional resource message
      */
     callback(params: InteractionAPI.Callback.Params, files?: FileResolver[]) {
         return this.client.http.fetch<InteractionAPI.Callback.Result>('POST', `${this.path}/callback?with_response=true`, params, files);
@@ -46,6 +47,7 @@ export class InteractionAPI {
         return {
             /**
              * Returns the initial interaction response.
+             * @returns Original interaction response message {@link Discord.APIMessage}
              */
             get: () => {
                 return this.client.http.get<InteractionAPI.OriginalResponse.Get.Result>(
@@ -56,6 +58,7 @@ export class InteractionAPI {
             /**
              * Edits the initial interaction response.
              * @event New token expires 15 minutes from the original request.
+             * @returns Updated original interaction response message {@link Discord.APIMessage}
              */
             edit: (params: InteractionAPI.OriginalResponse.Edit.Params, files?: FileResolver[]) => {
                 return this.client.http.fetch<InteractionAPI.OriginalResponse.Edit.Result>('PATCH', `${this.webhookPath}/messages/@original`, params, files);
@@ -74,6 +77,7 @@ export class InteractionAPI {
 
     /**
      * Creates a followup message for an interaction.
+    * @returns Created followup message {@link Discord.APIMessage}
      */
     followup(params: InteractionAPI.Followup.Create.Params, files?: FileResolver[]) {
         return this.client.http.fetch<InteractionAPI.Followup.Create.Result>('POST', `${this.webhookPath}`, params, files);
@@ -88,6 +92,7 @@ export class InteractionAPI {
         return {
             /**
              * Returns a followup message for an interaction.
+             * @returns Followup message object {@link Discord.APIMessage}
              */
             get: () => {
                 return this.client.http.get<InteractionAPI.FollowupMessage.Get.Result>(messagePath);
@@ -96,6 +101,7 @@ export class InteractionAPI {
             /**
              * Edits a followup message.
              * @event New token expires 15 minutes from the original request.
+             * @returns Updated followup message object {@link Discord.APIMessage}
              */
             edit: (params: InteractionAPI.FollowupMessage.Edit.Params, files?: FileResolver[]) => {
                 return this.client.http.fetch<InteractionAPI.FollowupMessage.Edit.Result>('PATCH', messagePath, params, files);

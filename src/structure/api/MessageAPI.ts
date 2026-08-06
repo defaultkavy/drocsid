@@ -34,7 +34,7 @@ export class MessageAPI {
     /**
      * Returns a specific message in the channel.
      * @permissions VIEW_CHANNEL & READ_MESSAGE_HISTORY
-     * @returns Message object
+    * @returns Message object {@link Discord.APIMessage}
      */
     get() {
         return this.client.http.get<MessageAPI.Get.Result>(`${this.path}`);
@@ -44,7 +44,7 @@ export class MessageAPI {
      * Edit a previously sent message.
      * @event MESSAGE_UPDATE
      * @permissions SEND_MESSAGES (own message) or MANAGE_MESSAGES (other users' messages)
-     * @returns Updated message object
+    * @returns Updated message object {@link Discord.APIMessage}
      */
     modify(params: MessageAPI.Modify.Params) {
         return this.client.http.patch<MessageAPI.Modify.Result>(`${this.path}`, params);
@@ -63,7 +63,7 @@ export class MessageAPI {
      * Crosspost a message in an announcement channel to following channels.
      * @event MESSAGE_UPDATE
      * @permissions SEND_MESSAGES
-     * @returns Crossposted message object
+    * @returns Crossposted message object {@link Discord.APIMessage}
      */
     crosspost() {
         return this.client.http.post<MessageAPI.Crosspost.Result>(`${this.path}/crosspost`, {});
@@ -89,6 +89,7 @@ export class MessageAPI {
      * Start a thread from this message.
      * @event THREAD_CREATE
      * @permissions CREATE_PUBLIC_THREADS
+    * @returns Created thread channel object {@link Discord.APIChannel}
      */
     startThread(params: MessageAPI.StartThread.Params, reason?: string) {
         return this.client.http.post<MessageAPI.StartThread.Result>(`${this.path}/threads`, params, reason);

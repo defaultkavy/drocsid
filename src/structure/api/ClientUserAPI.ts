@@ -10,7 +10,7 @@ export class ClientUserAPI extends UserAPI {
     /**
      * Modify the requester’s user account settings. Returns a user object on success.
      * @event USER_UPDATE
-     * @returns User object {@link Discord.User}
+      * @returns User object {@link Discord.Client.User.API.Modify.Result}
      */
     modify(params: Discord.Client.User.API.Modify.Params) {
         return this.client.http.patch<Discord.Client.User.API.Modify.Result>(`${this.path}`, params);
@@ -18,7 +18,7 @@ export class ClientUserAPI extends UserAPI {
 
     /**
      * Returns a list of partial guild objects the current user is a member of. For OAuth2, requires the guilds scope.
-     * @returns List of guild preview object {@link Discord.Guild.Preview}
+      * @returns List of partial guild objects {@link Discord.Client.User.API.GetGuilds.Result}
      */
     getGuilds() {
         return this.client.http.get<Discord.Client.User.API.GetGuilds.Result>(`${this.path}/guilds`)
@@ -27,7 +27,7 @@ export class ClientUserAPI extends UserAPI {
     /**
      * Returns a guild member object for the current user.
      * @scope guilds.members.read
-     * @returns List of guild member object {@link Discord.Guild.Member}
+      * @returns Guild member object {@link Discord.Client.User.API.GetGuildMember.Result}
      */
     getGuildMember(guild_id: string) {
         return this.client.http.get<Discord.Client.User.API.GetGuildMember.Result>(`${this.path}/guilds/${guild_id}/member`)

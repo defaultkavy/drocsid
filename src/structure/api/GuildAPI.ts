@@ -18,7 +18,7 @@ export class GuildAPI {
      * Returns the guild object for the given id.
      * @param with_counts - If with_counts is set to true, 
      * this endpoint will also return approximate_member_count and approximate_presence_count for the guild. 
-     * @returns Guild object {@link Discord.Guild}
+      * @returns Guild object {@link Discord.Guild.API.Get.Result}
      */
     async get(with_counts: boolean = false) {
         return this.client.http.get<Discord.Guild.API.Get.Result>(`${this.path}?with_counts=${with_counts}`)
@@ -29,7 +29,7 @@ export class GuildAPI {
      * @event Fires a Guild Update Gateway event.
      * @permissions MANAGE_GUILD permission
      * @param params {@link Discord.APIRequest.Guild.ModifyParams}
-     * @returns Updated guild object {@link Discord.Guild} on success. 
+      * @returns Updated guild object {@link Discord.Guild.API.Modify.Result} on success.
      */
     async modify(params: Discord.Guild.API.Modify.Params, reason?: string) {
         return this.client.http.patch<Discord.Guild.API.Modify.Result>(`${this.path}`, params, reason)
@@ -45,7 +45,7 @@ export class GuildAPI {
     /**
      * Returns the guild preview object for the given id. 
      * @condition If the user is not in the guild, then the guild must be discoverable.
-     * @returns Guild preview object {@link Discord.Guild.Preview}
+      * @returns Guild preview object {@link Discord.Guild.API.GetPreview.Result}
      */
     async getPreview() {
         return this.client.http.get<Discord.Guild.API.GetPreview.Result>(`${this.path}/preview`)
@@ -64,7 +64,7 @@ export class GuildAPI {
             /** 
              * Returns a list of guild member objects that are members of the guild. 
              * @intents GUILD_MEMBERS Privileged Intent
-             * @returns List of guild member object {@link Discord.Guild.Member}
+             * @returns List of guild member objects {@link Discord.Guild.Member.Data[]}
              */
             list: (query?: Discord.Guild.Member.API.List.Query) => {
                 return this.client.http.get<Discord.Guild.Member.Data[]>(`${this.path}/members${this.client.http.query(query)}`)
@@ -72,7 +72,7 @@ export class GuildAPI {
             
             /** 
              * Returns a list of guild member objects whose username or nickname starts with a provided string.
-             * @returns List of guild member object {@link Discord.Guild.Member}
+             * @returns List of guild member objects {@link Discord.Guild.Member.Data[]}
              */
             search: (query?: Discord.Guild.Member.API.Search.Query) => {
                 return this.client.http.get<Discord.Guild.Member.Data[]>(`${this.path}/members/search${this.client.http.query(query)}`)
@@ -80,6 +80,10 @@ export class GuildAPI {
         }
     }
 
+    /**
+     * Modify the current member in the guild.
+     * @returns Updated current guild member object {@link Discord.Guild.Member.API.ModifyClient.Result}
+     */
     modifyClientMember(params: Discord.Guild.Member.API.ModifyClient.Params, reason?: string) {
         return this.client.http.patch<Discord.Guild.Member.API.ModifyClient.Result>(`${this.path}/members/@me`, params, reason)
     }
@@ -97,7 +101,7 @@ export class GuildAPI {
             /** 
              * Returns a list of ban objects for the users banned from this guild.
              * @permissions BAN_MEMBERS
-             * @returns List of guild ban object {@link Discord.Guild.Ban}
+             * @returns List of guild ban objects {@link Discord.Guild.Ban.API.List.Result}
              */
             list: (query?: Discord.Guild.Ban.API.List.Query) => {
                 return this.client.http.get<Discord.Guild.Ban.API.List.Result>(`${this.path}/bans${this.client.http.query(query)}`)
@@ -110,7 +114,7 @@ export class GuildAPI {
              * 
              * If none of the users could be banned, an error response code 500000: Failed to ban users is returned instead.
              * @permissions BAN_MEMBERS & MANAGE_GUILD
-             * @returns List of guild ban object {@link Discord.Guild.Ban}
+             * @returns Bulk ban result {@link Discord.Guild.Ban.API.Bulk.Result}
              */
             bulk: (params: Discord.Guild.Ban.API.Bulk.Params) => {
                 return this.client.http.post<Discord.Guild.Ban.API.Bulk.Result>(`${this.path}/bulk-ban`, params)
@@ -122,7 +126,7 @@ export class GuildAPI {
         return {
             /** 
              * Returns a list of guild channel objects. Does not include threads.
-             * @returns List of guild channel object {@link Discord.Guild.Channel}
+             * @returns List of guild channel objects {@link Discord.Guild.Channel.API.List.Result}
              */
             list: () => {
                 return this.client.http.get<Discord.Guild.Channel.API.List.Result>(`${this.path}/channels`)
@@ -135,7 +139,7 @@ export class GuildAPI {
              * Returns the new channel object on success.
              * @event CHANNEL_CREATE
              * @permissions MANAGE_CHANNELS
-             * @returns List of guild channel object {@link Discord.Guild.Channel}
+             * @returns Created guild channel object {@link Discord.Guild.Channel.API.Create.Result}
              */
             create: (params: Discord.Guild.Channel.API.Create.Params, reason?: string) => {
                 return this.client.http.post<Discord.Guild.Channel.API.Create.Result>(`${this.path}/channels`, params, reason)
@@ -145,7 +149,7 @@ export class GuildAPI {
              * Modify the positions of a set of channel objects for the guild. Returns a 204 empty response on success.
              * @event CHANNEL_CREATE
              * @permissions CHANNEL_UPDATE
-             * @returns List of guild channel object {@link Discord.Guild.Channel}
+             * @returns Channel position modify result {@link Discord.Guild.Channel.API.ModifyPosition.Result}
              */
             modifyPositions: (params: Discord.Guild.Channel.API.ModifyPosition.Params) => {
                 return this.client.http.patch<Discord.Guild.Channel.API.ModifyPosition.Result>(`${this.path}/channels`, params)
@@ -157,7 +161,7 @@ export class GuildAPI {
         return {
             /** 
              * Returns a list of role objects for the guild.
-             * @returns List of guild role object {@link Discord.Guild.Channel}
+             * @returns List of guild role objects {@link Discord.Guild.Role.API.List.Result}
              */
             list: () => {
                 return this.client.http.get<Discord.Guild.Role.API.List.Result>(`${this.path}/roles`)
@@ -165,7 +169,7 @@ export class GuildAPI {
             
             /** 
              * Returns a map of role IDs to the number of members with the role. Does not include the @everyone role.
-             * @returns Guild role object {@link Discord.Guild.Role}
+             * @returns Role member counts map {@link Discord.Guild.Role.API.GetMemberCounts.Result}
              */
             getMemberCounts: () => {
                 return this.client.http.get<Discord.Guild.Role.API.GetMemberCounts.Result>(`${this.path}/roles/member-counts`)
@@ -175,7 +179,7 @@ export class GuildAPI {
              * Create a new role for the guild. Returns the new role object on success.
              * @event GUILD_ROLE_CREATE
              * @permissions MANAGE_ROLES
-             * @returns Guild role object {@link Discord.Guild.Role}
+             * @returns Created guild role object {@link Discord.Guild.Role.API.Create.Result}
              */
             create: (params: Discord.Guild.Role.API.Create.Params, reason?: string) => {
                 return this.client.http.post<Discord.Guild.Role.API.Create.Result>(`${this.path}/roles`, params, reason)
@@ -185,7 +189,7 @@ export class GuildAPI {
              * Modify the positions of a set of role objects for the guild. Returns a list of all of the guild’s role objects on success.
              * @event GUILD_ROLE_UPDATE
              * @permissions MANAGE_ROLES
-             * @returns List of guild role object {@link Discord.Guild.Role}
+             * @returns Updated guild role list {@link Discord.Guild.Role.API.ModifyPositions.Result}
              */
             modifyPositions: (params: Discord.Guild.Role.API.ModifyPositions.Params, reason?: string) => {
                 this.client.http.patch<Discord.Guild.Role.API.ModifyPositions.Result>(`${this.path}/roles`, params, reason)
@@ -198,7 +202,7 @@ export class GuildAPI {
             /**
              * Returns a list of messages without the reactions key that match a search query in the guild.
              * @permissions READ_MESSAGE_HISTORY
-             * @returns Guild preview object {@link Discord.Guild.Preview}
+             * @returns Guild message search result {@link Discord.Guild.API.SearchMessages.Result}
              */
             search: (query: Discord.Guild.API.SearchMessages.Query) => {
                 return this.client.http.get<Discord.Guild.API.SearchMessages.Result>(`${this.path}/messages/search${this.client.http.query(query)}`)
