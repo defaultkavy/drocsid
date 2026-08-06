@@ -39,17 +39,20 @@ const cmd_greating = new Discord.Builder.ChatCommand('greating', 'Say a hello to
     .stringOption('name', 'What is your name', { required: true })
     .booleanOption('happy', 'Do you feeling good?')
     .oncall(event => {
+        event.data.happy // -> boolean | undefined
+        event.data.name // -> string
+
         if (event.data.happy) event.reply(message => message.content(`Hi ${event.data.name}. Nice to see you! You look good!`))
-        //  ^? event.data.happy: boolean | undefined
         else event.reply(message => message.content(`Hi ${event.data.name}.`))
-        // since string option `name` is set `required` true, 
-        // `event.data.name` will always be `string` type
     });
 
-new Discord.Builder.Commands()
-    .addGuildCommand(cmd_greating) // add greeting command to guild slash command
-    .listen() // start to listen command event
-    .deploy(); // register all commands to discord
+const commands = new Discord.Builder.Commands()
+    .addGuildCommand(cmd_greating)
+    .addGlobalCommand(cmd_greating)
+    .listen(); // start to listen command event
+    
+await commands.deployGuildCommand(client, 'GUILD_ID');
+await commands.deployGlobalCommand(client);
 ```
 
 ## Message Builder
