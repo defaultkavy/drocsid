@@ -35,7 +35,7 @@ client.on('CreateMessage', event => {
 
 ## Command Builder
 ```ts
-const cmd_greating = new Discord.Builder.ChatCommand('greating', 'Say a hello to bot!')
+const cmd_greeting = new Discord.Builder.ChatCommand('greeting', 'Say a hello to bot!')
     .stringOption('name', 'What is your name', { required: true })
     .booleanOption('happy', 'Do you feeling good?')
     .oncall(event => {
@@ -47,8 +47,8 @@ const cmd_greating = new Discord.Builder.ChatCommand('greating', 'Say a hello to
     });
 
 const commands = new Discord.Builder.Commands()
-    .addGuildCommand(cmd_greating)
-    .addGlobalCommand(cmd_greating)
+    .addGuildCommand(cmd_greeting)
+    .addGlobalCommand(cmd_greeting)
     .listen(); // start to listen command event
     
 await commands.deployGuildCommand(client, 'GUILD_ID');
